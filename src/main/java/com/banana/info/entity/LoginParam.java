@@ -9,19 +9,19 @@ public class LoginParam implements Serializable {
     /**
      * 账号
      */
-    private Integer id;
+    private String account;
 
     /**
      * 密码
      */
     private String password;
 
-    public Integer getId() {
-        return id;
+    public String getAccount() {
+        return account;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public String getPassword() {
