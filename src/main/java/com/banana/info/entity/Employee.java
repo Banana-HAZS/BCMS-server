@@ -2,7 +2,8 @@ package com.banana.info.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -12,23 +13,22 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author zjy
- * @since 2023-12-19
+ * @since 2024-03-29
  */
-@TableName("t_employee")
 public class Employee implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * id
+     * 唯一标识
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 姓名
+     * 账号
      */
-    private String name;
+    private String account;
 
     /**
      * 密码
@@ -36,14 +36,70 @@ public class Employee implements Serializable {
     private String password;
 
     /**
+     * 姓名
+     */
+    private String name;
+
+    /**
      * 性别
      */
     private String gender;
 
     /**
-     * 年龄
+     * 民族
      */
-    private Integer age;
+    private String folk;
+
+    /**
+     * 身份证号码
+     */
+    private String idCard;
+
+    /**
+     * 出生日期
+     */
+    // @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "YYYY-MM-DD HH:mm:ss")
+    private LocalDateTime birthDate;
+
+    /**
+     * 婚姻状况
+     */
+    private String marital;
+
+    /**
+     * 籍贯
+     */
+    private String hometown;
+
+    /**
+     * 现居住地
+     */
+    private String address;
+
+    /**
+     * 学历
+     */
+    private String educational;
+
+    /**
+     * 健康状况
+     */
+    private String health;
+
+    /**
+     * 宗教信仰
+     */
+    private String religious;
+
+    /**
+     * 政治面貌
+     */
+    private String political;
+
+    /**
+     * 联系方式
+     */
+    private String phone;
 
     /**
      * 邮箱
@@ -51,24 +107,9 @@ public class Employee implements Serializable {
     private String email;
 
     /**
-     * 电话
+     * 逻辑删除
      */
-    private String phone;
-
-    /**
-     * 职务
-     */
-    private String position;
-
-    /**
-     * 薪资
-     */
-    private Integer salary;
-
-    /**
-     * 雇佣日期
-     */
-    private LocalDateTime hireDate;
+    private Integer deleted;
 
     /**
      * 头像
@@ -76,88 +117,34 @@ public class Employee implements Serializable {
     private String picture;
 
     /**
-     * 逻辑删除
+     * 注册时间
      */
-    private Integer deleted;
+    private LocalDateTime registrationDate;
 
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public Integer getSalary() {
-        return salary;
-    }
-
-    public void setSalary(Integer salary) {
-        this.salary = salary;
-    }
-
-    public LocalDateTime getHireDate() {
-        return hireDate;
-    }
-
-    public void setHireDate(LocalDateTime hireDate) {
-        this.hireDate = hireDate;
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", account='" + account + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", gender='" + gender + '\'' +
+                ", folk='" + folk + '\'' +
+                ", idCard='" + idCard + '\'' +
+                ", birthDate=" + birthDate +
+                ", marital='" + marital + '\'' +
+                ", hometown='" + hometown + '\'' +
+                ", address='" + address + '\'' +
+                ", educational='" + educational + '\'' +
+                ", health='" + health + '\'' +
+                ", religious='" + religious + '\'' +
+                ", political='" + political + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", picture='" + picture + '\'' +
+                ", registrationDate=" + registrationDate +
+                '}';
     }
 
     public String getPicture() {
@@ -168,29 +155,148 @@ public class Employee implements Serializable {
         this.picture = picture;
     }
 
-    public Integer getDeleted() {
-        return deleted;
+    public Integer getId() {
+        return id;
     }
 
-    public void setDeleted(Integer deleted) {
-        this.deleted = deleted;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    @Override
-    public String toString() {
-        return "Employee{" +
-            "id = " + id +
-            ", name = " + name +
-            ", password = " + password +
-            ", gender = " + gender +
-            ", age = " + age +
-            ", email = " + email +
-            ", phone = " + phone +
-            ", position = " + position +
-            ", salary = " + salary +
-            ", hireDate = " + hireDate +
-            ", picture = " + picture +
-            ", deleted = " + deleted +
-        "}";
+    public String getAccount() {
+        return account;
     }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getFolk() {
+        return folk;
+    }
+
+    public void setFolk(String folk) {
+        this.folk = folk;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
+    public LocalDateTime getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDateTime birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public String getMarital() {
+        return marital;
+    }
+
+    public void setMarital(String marital) {
+        this.marital = marital;
+    }
+
+    public String getHometown() {
+        return hometown;
+    }
+
+    public void setHometown(String hometown) {
+        this.hometown = hometown;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getEducational() {
+        return educational;
+    }
+
+    public void setEducational(String educational) {
+        this.educational = educational;
+    }
+
+    public String getHealth() {
+        return health;
+    }
+
+    public void setHealth(String health) {
+        this.health = health;
+    }
+
+    public String getReligious() {
+        return religious;
+    }
+
+    public void setReligious(String religious) {
+        this.religious = religious;
+    }
+
+    public String getPolitical() {
+        return political;
+    }
+
+    public void setPolitical(String political) {
+        this.political = political;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDateTime getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDateTime registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
 }

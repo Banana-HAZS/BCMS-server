@@ -1,7 +1,11 @@
 package com.banana.info.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.banana.common.BusinessException;
+import com.banana.common.BusinessExceptionEnum;
+import com.banana.common.Result;
 import com.banana.info.entity.Employee;
+import com.banana.info.entity.LoginParam;
 import com.banana.info.mapper.EmployeeMapper;
 import com.banana.info.service.IEmployeeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -12,14 +16,16 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author zjy
@@ -35,36 +41,34 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Map<String, Object> login(Employee employee) {
+    public Result<Map<String, Object>> login(LoginParam param) {
         //根据用户名和密码查询员工
         LambdaQueryWrapper<Employee> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Employee::getId,employee.getId());
+        wrapper.eq(Employee::getAccount, param.getAccount());
         Employee loginEmployee = this.baseMapper.selectOne(wrapper);
+
+        if (Objects.isNull(loginEmployee)) {
+            throw new BusinessException(BusinessExceptionEnum.ACCOUNT_NOT_EXIST);
+        }
         //生成token并将用户信息存入redis
-        if(loginEmployee!=null && passwordEncoder.matches(employee.getPassword(),loginEmployee.getPassword())){
+        if (passwordEncoder.matches(param.getPassword(), loginEmployee.getPassword())) {
             String key = "Employee:" + UUID.randomUUID();
             //存入redis
             loginEmployee.setPassword(null);
-            redisTemplate.opsForValue().set(key,loginEmployee,30, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(key, loginEmployee, 30, TimeUnit.MINUTES);
             //返回数据
-            Map<String, Object> data=new HashMap<>();
-            data.put("token",key);
-            return data;
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", key);
+            return Result.success("登录成功！", data);
         }
-        return null;
+        throw new BusinessException(BusinessExceptionEnum.INCORRECT_USERNAME_OR_PASSWORD);
     }
 
     @Override
-    public Map<String, Object> getUserInfo(String token) {
+    public Employee getUserInfo(String token) {
         Object obj = redisTemplate.opsForValue().get(token);
-        if(obj!=null){
-            Employee loginEmployee = JSON.parseObject(JSON.toJSONString(obj), Employee.class);
-            Map<String, Object> data=new HashMap<>();
-            data.put("id",loginEmployee.getId());
-            data.put("name",loginEmployee.getName());
-            data.put("position",loginEmployee.getPosition());
-            data.put("picture",loginEmployee.getPicture());
-            return data;
+        if (Objects.nonNull(obj)) {
+            return JSON.parseObject(JSON.toJSONString(obj), Employee.class);
         }
         return null;
     }
@@ -72,5 +76,17 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Override
     public void logout(String token) {
         redisTemplate.delete(token);
+    }
+
+    @Override
+    public void addEmployee(Employee employee) {
+        employee.setRegistrationDate(LocalDateTime.now());
+        employee.setPicture("https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        try {
+            baseMapper.insert(employee);
+        } catch (Exception e) {
+            throw new BusinessException(BusinessExceptionEnum.ACCOUNTDUPLICATION);
+        }
     }
 }

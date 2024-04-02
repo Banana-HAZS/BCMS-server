@@ -40,15 +40,15 @@ public class EmployeeController {
     }
 
     @GetMapping("/list")
-    public Result<Map<String,Object>> getEmployeeList(@RequestParam(value = "id",required = false) String id,
+    public Result<Map<String,Object>> getEmployeeList(@RequestParam(value = "account",required = false) String account,
                                                     @RequestParam(value = "name",required = false) String name,
                                                     @RequestParam(value = "phone",required = false) String phone,
                                                     @RequestParam(value = "pageNo") Long pageNo,
                                                     @RequestParam(value = "pageSize") Long pageSize){
         LambdaQueryWrapper<Employee> wrapper = new LambdaQueryWrapper<>();
-        wrapper.likeRight(StringUtils.hasLength(id),Employee::getId,id);
-        wrapper.likeRight(StringUtils.hasLength(name),Employee::getName,name);
-        wrapper.likeRight(StringUtils.hasLength(phone ),Employee::getPhone,phone);
+        wrapper.like(StringUtils.hasLength(account),Employee::getAccount,account);
+        wrapper.like(StringUtils.hasLength(name),Employee::getName,name);
+        wrapper.like(StringUtils.hasLength(phone ),Employee::getPhone,phone);
 
         Page<Employee> page = new Page<>(pageNo,pageSize);
         employeeService.page(page,wrapper);
@@ -61,10 +61,7 @@ public class EmployeeController {
 
     @PostMapping
     public Result<?> addEmployee(@RequestBody Employee employee){
-        employee.setHireDate(LocalDateTime.now());
-        employee.setPicture("https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
-        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
-        employeeService.save(employee);
+        employeeService.addEmployee(employee);
         return Result.success("新增用户成功");
     }
 
