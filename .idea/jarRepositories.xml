@@ -31,5 +31,10 @@
       <option name="name" value="Central Repository" />
       <option name="url" value="https://maven.aliyun.com/repository/central" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="nexus-huice" />
+      <option name="name" value="Huice Maven Repository" />
+      <option name="url" value="https://nexus.huice.com/repository/maven-public/" />
+    </remote-repository>
   </component>
 </project>

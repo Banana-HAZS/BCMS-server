@@ -30,9 +30,6 @@ public class EmployeeController {
     @Autowired
     private IEmployeeService employeeService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @GetMapping("all")
     public Result<List<Employee>> getAllEmployee(){
         List<Employee> employeeList = employeeService.list();

@@ -17,8 +17,8 @@ public class CodeGenerator {
         String moduleName = "info";
         // String mapperLocation = "D:\\x-fitness\\x-fitness-server\\src\\main\\resources\\mapper\\" + moduleName;
         // String tables = "^t_.*";E:\BCMS\BCMS-server\src\main\java\com\banana\info
-        String mapperLocation = ".\\src\\main\\java\\" + moduleName;
-        String tables = "user,customer";
+        String mapperLocation = ".\\src\\main\\resources\\mapper\\" + moduleName;
+        String tables = "customer_credit";
 
         FastAutoGenerator.create(url, username, password)
                 .globalConfig(builder -> {

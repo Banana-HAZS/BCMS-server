@@ -2,7 +2,7 @@ package com.banana.info.service;
 
 import com.banana.common.Result;
 import com.banana.info.entity.Employee;
-import com.banana.info.entity.LoginParam;
+import com.banana.info.entity.param.LoginParam;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.transaction.annotation.Transactional;
 
