@@ -1,7 +1,12 @@
 package com.banana.info.service;
 
+import com.banana.info.entity.Customer;
 import com.banana.info.entity.Loan;
+import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.param.LoanSaveParam;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -13,4 +18,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ILoanService extends IService<Loan> {
 
+    Map<String, Object> getLoanList(LoanApplyParam param);
+
+    Customer getCustomerByIdCard(String idCard);
+
+    void addLoan(String token, LoanSaveParam param);
 }

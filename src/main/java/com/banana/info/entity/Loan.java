@@ -28,6 +28,11 @@ public class Loan implements Serializable {
     private Integer id;
 
     /**
+     * 贷款流水号
+     */
+    private String loanNo;
+
+    /**
      * 客户id
      */
     private Integer customerId;
@@ -41,6 +46,11 @@ public class Loan implements Serializable {
      * 贷款类型(1个人贷款、2商业贷款)
      */
     private Integer loanType;
+
+    /**
+     * 贷款申请执行人id
+     */
+    private Integer applyExecutorId;
 
     /**
      * 申请日期
@@ -108,7 +118,7 @@ public class Loan implements Serializable {
     private BigDecimal termRepayPrice;
 
     /**
-     * 还款方式(1等额本息还款、2等额本金还款、3按期付息、4分期还款)
+     * 还款方式(1等额本息还款、2等额本金还款、3按期付息)
      */
     private Integer repayMethod;
 

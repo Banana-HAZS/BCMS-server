@@ -30,6 +30,16 @@ public class LoanRecover implements Serializable {
     private Integer id;
 
     /**
+     * 贷款流水号
+     */
+    private String loanNo;
+
+    /**
+     * 贷款收回流水号
+     */
+    private String loanRecoverNo;
+
+    /**
      * 客户id
      */
     private Integer customerId;

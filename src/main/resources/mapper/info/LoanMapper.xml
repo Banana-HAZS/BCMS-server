@@ -2,4 +2,81 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.banana.info.mapper.LoanMapper">
 
+    <select id="getLoanPage" resultType="com.banana.info.entity.vo.LoanApplyVO">
+        select
+            loan.id,
+            loan.loan_no,
+            loan.customer_id,
+            customer.account as customerAccount,
+            customer.name as customerName,
+            loan.price,
+            loan.loan_type,
+            loan.apply_executor_id,
+            (
+                select employee.name
+                from employee
+                where employee.id = loan.apply_executor_id
+            ) as applyExecutor,
+            loan.apply_date,
+            loan.audit_type,
+            loan.auditor_id,
+            (
+                select employee.name
+                from employee
+                where employee.id = loan.auditor_id
+            ) as auditorName,
+            loan.audit_date,
+            loan.audit_opinion,
+            loan.grant_executor_id,
+            (
+                select employee.name
+                from employee
+                where employee.id = loan.grant_executor_id
+            ) as grantExecutor,
+            loan.grant_date,
+            loan.loan_status,
+            loan.interest_rate,
+            loan.repay_date,
+            loan.term_repay_principal,
+            loan.term_repay_interest,
+            loan.term_repay_price,
+            loan.repay_method,
+            loan.repay_term,
+            loan.loan_date,
+            loan.late_charge_base,
+            loan.loan_purpose,
+            loan.recovered_interest,
+            customer.phone as customerPhone
+        from
+            loan
+            join customer on loan.customer_id = customer.id
+        where 1=1
+            <if test="param.loanNo != null and param.loanNo != ''">
+                and loan.loan_no like concat('%',#{param.loanNo},'%')
+            </if>
+            <if test="param.customerAccount != null and param.customerAccount != ''">
+                and customer.account like concat('%',#{param.customerAccount},'%')
+            </if>
+            <if test="param.customerName != null and param.customerName != ''">
+                and customer.name like concat('%',#{param.customerName},'%')
+            </if>
+            <if test="param.auditType != null and param.auditType != ''">
+                and loan.audit_type = #{param.auditType}
+            </if>
+            <if test="param.loanStatus != null and param.loanStatus != ''">
+                and loan.loan_status = #{param.loanStatus}
+            </if>
+            <if test="param.repayMethod != null and param.repayMethod != ''">
+                and loan.repay_method = #{param.repayMethod}
+            </if>
+            <if test="param.customerPhone != null and param.customerPhone != ''">
+                and customer.phone like concat('%',#{param.customerPhone},'%')
+            </if>
+            <if test="param.applyStartDate != null">
+                and loan.apply_date >= #{param.applyStartDate}
+            </if>
+            <if test="param.applyEndDate != null">
+                and loan.apply_date &lt;= #{param.applyEndDate}
+            </if>
+    </select>
 </mapper>

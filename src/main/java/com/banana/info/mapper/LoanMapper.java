@@ -1,7 +1,11 @@
 package com.banana.info.mapper;
 
 import com.banana.info.entity.Loan;
+import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.vo.LoanApplyVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -13,4 +17,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface LoanMapper extends BaseMapper<Loan> {
 
+    Page<LoanApplyVO> getLoanPage(@Param("param") LoanApplyParam param, Page<LoanApplyVO> page);
 }

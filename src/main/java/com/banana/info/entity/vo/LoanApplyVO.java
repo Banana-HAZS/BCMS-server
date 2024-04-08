@@ -28,6 +28,11 @@ public class LoanApplyVO implements Serializable {
     private Integer id;
 
     /**
+     * 贷款流水号
+     */
+    private String loanNo;
+
+    /**
      * 客户id
      */
     private Integer customerId;
@@ -51,6 +56,16 @@ public class LoanApplyVO implements Serializable {
      * 贷款类型(1个人贷款、2商业贷款)
      */
     private Integer loanType;
+
+    /**
+     * 贷款申请执行人id
+     */
+    private Integer applyExecutorId;
+
+    /**
+     * 贷款申请执行人
+     */
+    private String applyExecutor;
 
     /**
      * 申请日期
@@ -90,7 +105,7 @@ public class LoanApplyVO implements Serializable {
     /**
      * 贷款发放执行人
      */
-    private Integer grantExecutor;
+    private String grantExecutor;
 
     /**
      * 贷款发放日期

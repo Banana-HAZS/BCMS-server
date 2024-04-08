@@ -13,17 +13,21 @@
             (
                 select count(*)
                 from (
-                         select auditor_id as employee_id
-                         from loan
-                         where auditor_id = employee.id
-                         union all
-                         select grant_executor_id as employee_id
-                         from loan
-                         where grant_executor_id = employee.id
-                         union all
-                         select evaluator_id as employee_id
-                         from customer_credit
-                         where evaluator_id = employee.id
+                        select apply_executor_id as employee_id
+                        from loan
+                        where apply_executor_id = employee.id and loan_status != 5
+                        union all
+                        select auditor_id as employee_id
+                        from loan
+                        where auditor_id = employee.id and loan_status != 5
+                        union all
+                        select grant_executor_id as employee_id
+                        from loan
+                        where grant_executor_id = employee.id and loan_status != 5
+                        union all
+                        select evaluator_id as employee_id
+                        from customer_credit
+                        where evaluator_id = employee.id and deleted != 1
                      ) as subQuery
                 group by employee_id
             ) as num,
