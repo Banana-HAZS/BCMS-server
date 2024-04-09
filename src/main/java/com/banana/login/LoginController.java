@@ -26,11 +26,6 @@ public class LoginController {
 
     @GetMapping("/info")
     public Result<Employee> getInfo(@RequestParam("token") String token){
-        // 根据token从redis获取用户信息
-        Employee employee = employeeService.getUserInfo(token);
-        if(Objects.nonNull(employee)){
-            return Result.success(employee);
-        }
-        throw new BusinessException(BusinessExceptionEnum.LOGIN_EXPIRED);
+        return Result.success(employeeService.getUserInfo(token));
     }
 }

@@ -11,6 +11,7 @@ import com.banana.info.entity.param.LoanSaveParam;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.mapper.CustomerMapper;
 import com.banana.info.mapper.LoanMapper;
+import com.banana.info.service.IEmployeeService;
 import com.banana.info.service.ILoanService;
 import com.banana.tool.UniqueCodeGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -43,11 +44,11 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     @Resource
     private CustomerMapper customerMapper;
 
+    @Autowired
+    private IEmployeeService employeeService;
+
     @Resource
     private UniqueCodeGenerator uniqueCodeGenerator;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Override
     public Map<String, Object> getLoanList(LoanApplyParam param) {
@@ -72,13 +73,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
 
         Customer customer = getCustomerByIdCard(param.getIdCard());
 
-        token = token.replace("Employee:", "");
-
-        Object obj = redisTemplate.opsForValue().get(token);
-        if(Objects.isNull(obj)){
-            throw new BusinessException(BusinessExceptionEnum.LOGIN_EXPIRED);
-        }
-        Employee employee = JSON.parseObject(JSON.toJSONString(obj), Employee.class);
+        Employee employee = employeeService.getUserInfo(token);
 
         Loan loan = param.toLoan();
         loan.setLoanNo(uniqueCodeGenerator.generateUniqueCode());

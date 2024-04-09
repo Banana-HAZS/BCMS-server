@@ -33,7 +33,7 @@ public class LoanSaveParam implements Serializable {
     /**
      * 银行预留手机号
      */
-    private Integer customerPhone;
+    private String customerPhone;
 
     /**
      * 贷款金额

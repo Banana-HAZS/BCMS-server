@@ -66,10 +66,10 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Override
     public Employee getUserInfo(String token) {
         Object obj = redisTemplate.opsForValue().get(token);
-        if (Objects.nonNull(obj)) {
-            return JSON.parseObject(JSON.toJSONString(obj), Employee.class);
+        if(Objects.isNull(obj)){
+            throw new BusinessException(BusinessExceptionEnum.LOGIN_EXPIRED);
         }
-        return null;
+        return JSON.parseObject(JSON.toJSONString(obj), Employee.class);
     }
 
     @Override
