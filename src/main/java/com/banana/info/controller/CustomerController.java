@@ -57,8 +57,7 @@ public class CustomerController {
 
     @PostMapping
     public Result<?> addCustomer(@RequestBody Customer customer){
-        customer.setRegistrationDate(LocalDateTime.now());
-        customerService.save(customer);
+        customerService.addCustomer(customer);
         return Result.success("新增用户成功");
     }
 

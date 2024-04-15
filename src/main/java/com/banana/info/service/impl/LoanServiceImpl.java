@@ -1,6 +1,5 @@
 package com.banana.info.service.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.banana.common.BusinessException;
 import com.banana.common.BusinessExceptionEnum;
 import com.banana.info.entity.Customer;
@@ -18,7 +17,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
