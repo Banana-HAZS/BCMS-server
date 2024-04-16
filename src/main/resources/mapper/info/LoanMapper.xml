@@ -78,5 +78,6 @@
             <if test="param.applyEndDate != null">
                 and loan.apply_date &lt;= #{param.applyEndDate}
             </if>
+        order by loan.apply_date desc
     </select>
 </mapper>
