@@ -2,6 +2,7 @@ package com.banana.info.service;
 
 import com.banana.info.entity.Customer;
 import com.banana.info.entity.Loan;
+import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.LoanApplyParam;
 import com.banana.info.entity.param.LoanSaveParam;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -23,4 +24,8 @@ public interface ILoanService extends IService<Loan> {
     Customer getCustomerByIdCard(String idCard);
 
     void addLoan(String token, LoanSaveParam param);
+
+    void auditLoan(String token, AuditLoanParam param);
+
+    void rejectLoan(String token, AuditLoanParam param);
 }

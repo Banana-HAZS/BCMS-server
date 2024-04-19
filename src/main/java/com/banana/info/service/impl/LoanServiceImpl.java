@@ -5,6 +5,9 @@ import com.banana.common.BusinessExceptionEnum;
 import com.banana.info.entity.Customer;
 import com.banana.info.entity.Employee;
 import com.banana.info.entity.Loan;
+import com.banana.info.entity.commonEnum.AuditTypeEnum;
+import com.banana.info.entity.commonEnum.LoanStatusEnum;
+import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.LoanApplyParam;
 import com.banana.info.entity.param.LoanSaveParam;
 import com.banana.info.entity.vo.LoanApplyVO;
@@ -79,6 +82,40 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
         loan.setApplyExecutorId(employee.getId());
 
         loanMapper.insert(loan);
+    }
+
+    @Override
+    public void auditLoan(String token, AuditLoanParam param) {
+        Loan checkLoan = loanMapper.selectById(param.getId());
+        if (checkLoan.getAuditType() != AuditTypeEnum.WAIT_AUDIT.getV()) {
+            throw new BusinessException(BusinessExceptionEnum.AUDIT_TYPE_ERROR);
+        }
+
+        Employee employee = employeeService.getUserInfo(token);
+
+        Loan loan = param.toLoan();
+        loan.setAuditType(AuditTypeEnum.PASSED.getV());
+        loan.setLoanStatus(LoanStatusEnum.WAIT_GRANT.getV());
+        loan.setAuditorId(employee.getId());
+
+        loanMapper.updateById(loan);
+    }
+
+    @Override
+    public void rejectLoan(String token, AuditLoanParam param) {
+        Loan checkLoan = loanMapper.selectById(param.getId());
+        if (checkLoan.getAuditType() == AuditTypeEnum.REJECTED.getV()) {
+            return;
+        }
+
+        Employee employee = employeeService.getUserInfo(token);
+
+        Loan loan = param.toLoan();
+        loan.setAuditType(AuditTypeEnum.REJECTED.getV());
+        loan.setLoanStatus(LoanStatusEnum.REJECTED.getV());
+        loan.setAuditorId(employee.getId());
+
+        loanMapper.updateById(loan);
     }
 
     @Override
