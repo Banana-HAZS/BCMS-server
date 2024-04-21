@@ -8,14 +8,16 @@ import com.banana.info.entity.Loan;
 import com.banana.info.entity.commonEnum.AuditTypeEnum;
 import com.banana.info.entity.commonEnum.LoanStatusEnum;
 import com.banana.info.entity.param.AuditLoanParam;
+import com.banana.info.entity.param.GrantLoanParam;
 import com.banana.info.entity.param.LoanApplyParam;
 import com.banana.info.entity.param.LoanSaveParam;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.mapper.CustomerMapper;
 import com.banana.info.mapper.LoanMapper;
 import com.banana.info.service.IEmployeeService;
+import com.banana.info.service.ILoanRecoverService;
 import com.banana.info.service.ILoanService;
-import com.banana.tool.UniqueCodeGenerator;
+import com.banana.tool.LoanNoGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -48,8 +49,11 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     @Autowired
     private IEmployeeService employeeService;
 
+    @Autowired
+    private ILoanRecoverService loanRecoverService;
+
     @Resource
-    private UniqueCodeGenerator uniqueCodeGenerator;
+    private LoanNoGenerator loanNoGenerator;
 
     @Override
     public Map<String, Object> getLoanList(LoanApplyParam param) {
@@ -57,15 +61,12 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
         // 时间初始化
         param.dateTimeInit();
 
-        Page<LoanApplyVO> page = new Page<>(param.getPageNo(), param.getPageSize());
-
-        loanMapper.getLoanPage(param, page);
-
-        List<LoanApplyVO> records = page.getRecords();
+        Page<LoanApplyVO> page = loanMapper
+                .getLoanPage(param, new Page<>(param.getPageNo(), param.getPageSize()));
 
         Map<String, Object> data = new HashMap<>();
         data.put("total", page.getTotal());
-        data.put("rows", records);
+        data.put("rows", page.getRecords());
         return data;
     }
 
@@ -77,7 +78,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
         Employee employee = employeeService.getUserInfo(token);
 
         Loan loan = param.toLoan();
-        loan.setLoanNo(uniqueCodeGenerator.generateUniqueCode());
+        loan.setLoanNo(loanNoGenerator.generateUniqueCode());
         loan.setCustomerId(customer.getId());
         loan.setApplyExecutorId(employee.getId());
 
@@ -116,6 +117,24 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
         loan.setAuditorId(employee.getId());
 
         loanMapper.updateById(loan);
+    }
+
+    @Override
+    public void grantLoan(String token, GrantLoanParam param) {
+        Loan checkLoan = loanMapper.selectById(param.getId());
+        if (checkLoan.getLoanStatus() != LoanStatusEnum.WAIT_GRANT.getV()) {
+            throw new BusinessException(BusinessExceptionEnum.GTANT_TYPE_ERROR);
+        }
+
+        Employee employee = employeeService.getUserInfo(token);
+
+        Loan loan = param.toLoan();
+        loan.setLoanStatus(LoanStatusEnum.GRANTED.getV());
+        loan.setGrantExecutorId(employee.getId());
+
+        loanMapper.updateById(loan);
+
+        loanRecoverService.addLoanRecover(loanMapper.selectById(param.getId()));
     }
 
     @Override

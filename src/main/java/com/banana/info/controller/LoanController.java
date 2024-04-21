@@ -4,6 +4,7 @@ import com.banana.common.Result;
 import com.banana.info.entity.Customer;
 import com.banana.info.entity.Loan;
 import com.banana.info.entity.param.AuditLoanParam;
+import com.banana.info.entity.param.GrantLoanParam;
 import com.banana.info.entity.param.LoanApplyParam;
 import com.banana.info.entity.param.LoanSaveParam;
 import com.banana.info.entity.vo.LoanApplyVO;
@@ -52,6 +53,12 @@ public class LoanController {
     public Result<?> rejectLoan(@RequestHeader("X-Token") String token, @RequestBody AuditLoanParam param) {
         loanService.rejectLoan(token, param);
         return Result.success("审核成功");
+    }
+
+    @PostMapping("/grant")
+    public Result<?> grantLoan(@RequestHeader("X-Token") String token, @RequestBody GrantLoanParam param) {
+        loanService.grantLoan(token, param);
+        return Result.success("放款成功");
     }
 
     @GetMapping("/idCard/{idCard}")

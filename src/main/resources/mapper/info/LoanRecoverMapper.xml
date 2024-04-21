@@ -2,4 +2,61 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.banana.info.mapper.LoanRecoverMapper">
 
+    <select id="getLoanRecoverPage" resultType="com.banana.info.entity.vo.LoanRecoverSearchVO">
+        select
+            lr.id,
+            lr.loan_id,
+            lr.loan_no,
+            lr.loan_recover_no,
+            lr.customer_id,
+            c.account as customerAccount,
+            c.name as customerName,
+            lr.price,
+            lr.interest_rate,
+            lr.repay_date,
+            lr.term_repay_principal,
+            lr.term_repay_interest,
+            lr.term_repay_price,
+            lr.actual_repay_price,
+            lr.actual_repay_date,
+            l.repay_method,
+            lr.current_term,
+            lr.remain_term,
+            lr.late_charge,
+            lr.balance,
+            lr.term_status,
+            lr.delay_num,
+            lr.interest_rate_adjust,
+            c.phone as customerPhone
+        from
+            loan_recover as lr
+        join customer as c on lr.customer_id = c.id
+        join loan as l on lr.loan_id = l.id
+        where 1=1
+        <if test="param.loanNo != null and param.loanNo != ''">
+            and lr.loan_no like concat('%',#{param.loanNo},'%')
+        </if>
+        <if test="param.loanRecoverNo != null and param.loanRecoverNo != ''">
+            and lr.loan_recover_no like concat('%',#{param.loanRecoverNo},'%')
+        </if>
+        <if test="param.customerAccount != null and param.customerAccount != ''">
+            and c.account like concat('%',#{param.customerAccount},'%')
+        </if>
+        <if test="param.customerName != null and param.customerName != ''">
+            and c.name like concat('%',#{param.customerName},'%')
+        </if>
+        <if test="param.customerPhone != null and param.customerPhone != ''">
+            and c.phone like concat('%',#{param.customerPhone},'%')
+        </if>
+        <if test="param.repayStartDate != null">
+            and lr.repay_date >= #{param.repayStartDate
+        </if>
+        <if test="param.repayEndDate != null">
+            and lr.repay_date &lt;= #{param.repayEndDate}
+        </if>
+        <if test="param.termStatus != null">
+            and lr.term_status = #{param.termStatus}
+        </if>
+        order by lr.repay_date
+    </select>
 </mapper>

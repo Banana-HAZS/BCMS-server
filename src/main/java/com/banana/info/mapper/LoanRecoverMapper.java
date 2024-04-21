@@ -1,7 +1,11 @@
 package com.banana.info.mapper;
 
 import com.banana.info.entity.LoanRecover;
+import com.banana.info.entity.param.LoanRecoverSearchParam;
+import com.banana.info.entity.vo.LoanRecoverSearchVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -13,4 +17,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface LoanRecoverMapper extends BaseMapper<LoanRecover> {
 
+    Page<LoanRecoverSearchVO> getLoanRecoverPage(@Param("param") LoanRecoverSearchParam param, Page<LoanRecoverSearchVO> page);
 }

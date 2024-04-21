@@ -1,8 +1,8 @@
 package com.banana;
 
 
-import com.banana.info.mapper.EmployeeMapper;
-import com.banana.tool.UniqueCodeGenerator;
+import com.banana.info.mapper.LoanMapper;
+import com.banana.tool.LoanNoGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12,11 +12,14 @@ import javax.annotation.Resource;
 class BCMSServerApplicationTests {
 
     @Resource
-    private UniqueCodeGenerator uniqueCodeGenerator;
+    private LoanNoGenerator loanNoGenerator;
+
+    @Resource
+    private LoanMapper loanMapper;
 
     @Test
     void test() {
-        String s = uniqueCodeGenerator.generateUniqueCode();
+        String s = loanNoGenerator.generateUniqueCode();
         System.out.println(s);
     }
 }

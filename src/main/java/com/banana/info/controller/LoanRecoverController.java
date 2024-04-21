@@ -1,8 +1,18 @@
 package com.banana.info.controller;
 
+import com.banana.common.Result;
+import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.param.LoanRecoverSearchParam;
+import com.banana.info.service.ILoanRecoverService;
+import com.banana.info.service.ILoanService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -16,4 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/info/loanRecover")
 public class LoanRecoverController {
 
+    @Autowired
+    private ILoanRecoverService loanRecoverService;
+
+    @PostMapping("/list")
+    public Result<Map<String, Object>> getLoanRecoverList(@RequestBody LoanRecoverSearchParam param) {
+        Map<String, Object> data = loanRecoverService.getLoanRecoverList(param);
+        return Result.success(data);
+    }
 }

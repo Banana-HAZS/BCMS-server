@@ -6,11 +6,11 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 @Component
-public class UniqueCodeGenerator {
+public class LoanRecoverNoGenerator {
     private JedisPool jedisPool;
-    private static final String COUNTER_KEY = "my_bank";
+    private static final String COUNTER_KEY = "recover";
 
-    public UniqueCodeGenerator() {
+    public LoanRecoverNoGenerator() {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         jedisPool = new JedisPool(poolConfig, "localhost", 6379);
     }
