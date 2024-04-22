@@ -134,6 +134,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
 
         loanMapper.updateById(loan);
 
+        // 贷款发放后，开启贷款收回
         loanRecoverService.addLoanRecover(loanMapper.selectById(param.getId()));
     }
 

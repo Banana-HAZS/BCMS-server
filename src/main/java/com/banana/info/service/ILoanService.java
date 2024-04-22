@@ -7,6 +7,7 @@ import com.banana.info.entity.param.GrantLoanParam;
 import com.banana.info.entity.param.LoanApplyParam;
 import com.banana.info.entity.param.LoanSaveParam;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -30,5 +31,6 @@ public interface ILoanService extends IService<Loan> {
 
     void rejectLoan(String token, AuditLoanParam param);
 
+    @Transactional(rollbackFor = Exception.class)
     void grantLoan(String token, GrantLoanParam param);
 }
