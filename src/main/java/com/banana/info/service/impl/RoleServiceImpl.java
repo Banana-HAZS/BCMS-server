@@ -33,9 +33,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RoleVO> implements 
     @Override
     public Map<String, Object> getRolePage(RoleParam param) {
 
-        Page<RoleVO> page = new Page<>(param.getPageNo(), param.getPageSize());
-
-        roleMapper.getRolePage(param,page);
+        Page<RoleVO> page = roleMapper.getRolePage(param,
+                new Page<>(param.getPageNo(), param.getPageSize()));
 
         List<RoleVO> records = page.getRecords();
         records.forEach(roleVO -> {

@@ -13,38 +13,39 @@
             (
                 select count(*)
                 from (
-                        select apply_executor_id as employee_id
-                        from loan
-                        where apply_executor_id = employee.id and loan_status != 5
-                        union all
-                        select auditor_id as employee_id
-                        from loan
-                        where auditor_id = employee.id and loan_status != 5
-                        union all
-                        select grant_executor_id as employee_id
-                        from loan
-                        where grant_executor_id = employee.id and loan_status != 5
-                        union all
-                        select evaluator_id as employee_id
-                        from customer_credit
-                        where evaluator_id = employee.id and deleted != 1
-                     ) as subQuery
+                    select apply_executor_id as employee_id
+                    from loan
+                    where loan_status != 5
+                    union all
+                    select auditor_id as employee_id
+                    from loan
+                    where loan_status != 5
+                    union all
+                    select grant_executor_id as employee_id
+                    from loan
+                    where loan_status != 5
+                    union all
+                    select evaluator_id as employee_id
+                    from customer_credit
+                    where customer_credit.deleted != 1
+                    ) as subQuery
+                where subQuery.employee_id = employee.id
                 group by employee_id
-            ) as num,
+                ) as num,
             employee.phone,
             employee.registration_date
         from
             employee
-                join role on employee.role_id = role.id
+        join role on employee.role_id = role.id
         where 1=1
-            <if test="param.account != null and param.account != ''">
-                and employee.account like concat('%',#{param.account},'%')
-            </if>
-            <if test="param.name != null and param.name != ''">
-                and employee.name like concat('%',#{param.name},'%')
-            </if>
-            <if test="param.phone != null and param.phone != ''">
-                and employee.phone like concat('%',#{param.phone},'%')
-            </if>
+        <if test="param.account != null and param.account != ''">
+            and employee.account like concat('%',#{param.account},'%')
+        </if>
+        <if test="param.name != null and param.name != ''">
+            and employee.name like concat('%',#{param.name},'%')
+        </if>
+        <if test="param.phone != null and param.phone != ''">
+            and employee.phone like concat('%',#{param.phone},'%')
+        </if>
     </select>
 </mapper>
