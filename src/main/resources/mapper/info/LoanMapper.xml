@@ -78,12 +78,6 @@
             <if test="param.applyEndDate != null">
                 and loan.apply_date &lt;= #{param.applyEndDate}
             </if>
-        order by
-            case
-                when loan.auditor_id is not null
-                then loan.audit_date
-                else loan.apply_date
-            end
-            desc
+        order by loan.apply_date desc
     </select>
 </mapper>

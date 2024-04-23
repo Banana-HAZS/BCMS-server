@@ -18,6 +18,7 @@
             lr.term_repay_interest,
             lr.term_repay_price,
             lr.actual_repay_price,
+            lr.remain_repay_price,
             lr.actual_repay_date,
             l.repay_method,
             lr.current_term,

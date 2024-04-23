@@ -25,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -81,6 +84,23 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
         loan.setLoanNo(loanNoGenerator.generateUniqueCode());
         loan.setCustomerId(customer.getId());
         loan.setApplyExecutorId(employee.getId());
+
+        // 还款日期(第一期)
+        YearMonth yearMonth = YearMonth.from(LocalDateTime.now());
+        // 只取“日”，映射到当前时间。
+        LocalDateTime mapNowDate = LocalDateTime.of(yearMonth.getYear(),
+                yearMonth.getMonthValue(),
+                Math.min(yearMonth.lengthOfMonth(), loan.getRepayDate().getDayOfMonth()),
+                0, 0, 0);
+        // 每一期要大于等于15天，否则向后顺延一月，当前数据按贷款日期计算，仅供前端展示，放款后再按放款日期计算一次
+        long days = Duration.between(loan.getApplyDate(), mapNowDate).toDays();
+        if (days >= 15L){
+            loan.setRepayDate(mapNowDate);
+        }else{
+            loan.setRepayDate(mapNowDate.plusMonths(1));
+        }
+        // 贷款期限(最后的还款日期)
+        loan.setLoanDate(loan.getRepayDate().plusMonths(loan.getRepayTerm() - 1));
 
         loanMapper.insert(loan);
     }

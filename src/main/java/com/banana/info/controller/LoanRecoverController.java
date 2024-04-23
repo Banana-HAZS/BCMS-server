@@ -2,6 +2,7 @@ package com.banana.info.controller;
 
 import com.banana.common.Result;
 import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.banana.info.service.ILoanRecoverService;
 import com.banana.info.service.ILoanService;
@@ -33,5 +34,11 @@ public class LoanRecoverController {
     public Result<Map<String, Object>> getLoanRecoverList(@RequestBody LoanRecoverSearchParam param) {
         Map<String, Object> data = loanRecoverService.getLoanRecoverList(param);
         return Result.success(data);
+    }
+
+    @PostMapping("/repay")
+    public Result<?> repay(@RequestBody LoanRecoverRepayParam param) {
+        loanRecoverService.repay(param);
+        return Result.success("还款成功");
     }
 }

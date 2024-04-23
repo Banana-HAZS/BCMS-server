@@ -90,6 +90,11 @@ public class LoanRecoverSearchVO implements Serializable {
     private BigDecimal actualRepayPrice;
 
     /**
+     * 剩余待还金额
+     */
+    private BigDecimal remainRepayPrice;
+
+    /**
      * 实际还款日期
      */
     private LocalDateTime actualRepayDate;
@@ -112,7 +117,7 @@ public class LoanRecoverSearchVO implements Serializable {
     /**
      * 逾期罚息基数(130%-150%)
      */
-    private BigDecimal lateChargeBase;
+    private BigDecimal lateCharge;
 
     /**
      * 剩余本金

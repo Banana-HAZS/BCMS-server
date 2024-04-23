@@ -9,6 +9,7 @@ public enum BusinessExceptionEnum {
     IDCARD_NOT_EXIST(20005,"用户信息不存在！请检查您输入的身份证号码"),
     AUDIT_TYPE_ERROR(20006,"仅可审核待审核的申请"),
     GTANT_TYPE_ERROR(20007,"仅可操作待放款的单据"),
+    OVERPAY(20008,"超额还款，还款金额不能超过剩余待还金额"),
     ;
 
     private Integer code;

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 
 @SpringBootTest
 class BCMSServerApplicationTests {
@@ -19,7 +20,7 @@ class BCMSServerApplicationTests {
 
     @Test
     void test() {
-        String s = loanNoGenerator.generateUniqueCode();
-        System.out.println(s);
+        LocalDateTime dateTime = LocalDateTime.of(2024, 1, 2, 0, 0);
+        System.out.println(dateTime.getDayOfMonth());
     }
 }

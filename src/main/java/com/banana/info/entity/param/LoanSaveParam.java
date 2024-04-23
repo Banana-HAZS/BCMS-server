@@ -98,13 +98,12 @@ public class LoanSaveParam implements Serializable {
         loan.setAuditType(1);
         loan.setLoanStatus(1);
         loan.setInterestRate(interestRate);
-        loan.setRepayDate(repayDate);
         loan.setTermRepayPrincipal(termRepayPrincipal);
         loan.setTermRepayInterest(termRepayInterest);
         loan.setTermRepayPrice(termRepayPrice);
+        loan.setRepayDate(repayDate);
         loan.setRepayMethod(repayMethod);
         loan.setRepayTerm(repayTerm);
-        loan.setLoanDate(repayDate.plusMonths(repayTerm));
         loan.setLateChargeBase(lateChargeBase);
         loan.setLoanPurpose(loanPurpose);
         loan.setRecoveredInterest(new BigDecimal(0.0000));

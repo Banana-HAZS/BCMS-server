@@ -3,6 +3,7 @@ package com.banana.info.service;
 import com.banana.info.entity.Loan;
 import com.banana.info.entity.LoanRecover;
 import com.banana.info.entity.param.GrantLoanParam;
+import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -21,4 +22,6 @@ public interface ILoanRecoverService extends IService<LoanRecover> {
     Map<String, Object> getLoanRecoverList(LoanRecoverSearchParam param);
 
     void addLoanRecover(Loan loan);
+
+    void repay(LoanRecoverRepayParam param);
 }
