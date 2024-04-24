@@ -129,4 +129,21 @@ public class LoanRecover implements Serializable {
      */
     private BigDecimal interestRateAdjust;
 
+    /**
+     * 创建还款记录初始化
+     * @return
+     */
+    public RepayRecords createRepayRecord(BigDecimal repayPrice){
+        RepayRecords repayRecord = new RepayRecords();
+        repayRecord.setLoanId(loanId);
+        repayRecord.setLoanRecoverId(id);
+        repayRecord.setCustomerId(customerId);
+        repayRecord.setLoanNo(loanNo);
+        repayRecord.setLoanRecoverNo(loanRecoverNo);
+        repayRecord.setRepayPrice(repayPrice);
+        repayRecord.setRepayDate(LocalDateTime.now());
+        repayRecord.setActualRepayPrice(actualRepayPrice.add(repayPrice));
+        repayRecord.setRemainRepayPrice(remainRepayPrice.subtract(repayPrice).max(BigDecimal.ZERO));
+        return repayRecord;
+    }
 }

@@ -4,12 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 
 @Data
-public class LoanRecoverRepayParam implements Serializable {
+public class EarlyPayoffParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -17,10 +14,5 @@ public class LoanRecoverRepayParam implements Serializable {
      * 贷款收回id
      */
     private Integer id;
-
-    /**
-     * 还款金额
-     */
-    private BigDecimal repayPrice;
 
 }

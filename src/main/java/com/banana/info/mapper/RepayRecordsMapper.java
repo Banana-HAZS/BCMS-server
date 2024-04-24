@@ -1,7 +1,11 @@
 package com.banana.info.mapper;
 
 import com.banana.info.entity.RepayRecords;
+import com.banana.info.entity.param.RepayRecordsSearchParam;
+import com.banana.info.entity.vo.RepayRecordsSearchVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -13,4 +17,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface RepayRecordsMapper extends BaseMapper<RepayRecords> {
 
+    Page<RepayRecordsSearchVO> getRepayRecordsList(@Param("param") RepayRecordsSearchParam param, Page<Object> objectPage);
 }

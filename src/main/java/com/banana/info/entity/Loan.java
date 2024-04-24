@@ -147,4 +147,9 @@ public class Loan implements Serializable {
      */
     private BigDecimal recoveredInterest;
 
+    /**
+     * 剩余本金
+     */
+    private BigDecimal balance;
+
 }

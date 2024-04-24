@@ -5,6 +5,7 @@ import com.banana.common.BusinessExceptionEnum;
 import com.banana.info.entity.Loan;
 import com.banana.info.entity.LoanRecover;
 import com.banana.info.entity.RepayRecords;
+import com.banana.info.entity.commonEnum.LoanStatusEnum;
 import com.banana.info.entity.commonEnum.RepayMethodEnum;
 import com.banana.info.entity.commonEnum.TermStatusEnum;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
@@ -18,6 +19,7 @@ import com.banana.info.mapper.RepayRecordsMapper;
 import com.banana.info.service.IEmployeeService;
 import com.banana.info.service.ILoanRecoverService;
 import com.banana.tool.LoanRecoverNoGenerator;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -140,27 +144,84 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         }
 
         //创建还款记录
-        RepayRecords repayRecord = new RepayRecords();
-        repayRecord.setLoanId(loanRecover.getLoanId());
-        repayRecord.setLoanRecoverId(loanRecover.getId());
-        repayRecord.setCustomerId(loanRecover.getCustomerId());
-        repayRecord.setLoanNo(loanRecover.getLoanNo());
-        repayRecord.setLoanRecoverNo(loanRecover.getLoanRecoverNo());
-        repayRecord.setRepayPrice(param.getRepayPrice());
-        repayRecord.setRepayDate(LocalDateTime.now());
+        RepayRecords repayRecord = loanRecover.createRepayRecord(param.getRepayPrice());
 
         BigDecimal actualRepayPrice = loanRecover.getActualRepayPrice().add(param.getRepayPrice());
         BigDecimal remainRepayPrice = loanRecover.getRemainRepayPrice().subtract(param.getRepayPrice());
         // 判断是否结清
         if (remainRepayPrice.compareTo(BigDecimal.ZERO) == 0){
             loanRecover.setTermStatus(TermStatusEnum.TERM_PAYOFF.getV());
+            loanRecover.setActualRepayDate(LocalDateTime.now());
+
+            Loan loan = loanMapper.selectById(loanRecover.getLoanId());
+            loan.setBalance(loan.getBalance().subtract(loanRecover.getTermRepayPrincipal()));
+            loan.setRecoveredInterest(loan.getRecoveredInterest().add(loanRecover.getTermRepayInterest()));
+            if(loan.getBalance().equals(BigDecimal.ZERO)){
+                loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
+            }
+            loanMapper.updateById(loan);
         }
         loanRecover.setActualRepayPrice(actualRepayPrice);
         loanRecover.setRemainRepayPrice(remainRepayPrice);
-        repayRecord.setActualRepayPrice(actualRepayPrice);
-        repayRecord.setRemainRepayPrice(remainRepayPrice);
 
         loanRecoverMapper.updateById(loanRecover);
         repayRecordsMapper.insert(repayRecord);
+    }
+
+    @Override
+    public void earlyPayoff(LoanRecoverRepayParam param) {
+        LoanRecover loanRecover = loanRecoverMapper.selectById(param.getId());
+
+        if(loanRecover.getTermStatus()==TermStatusEnum.EARLY_PAYOFF.getV()){
+            throw new BusinessException(BusinessExceptionEnum.REPEATED_EARLY_PAYOFF);
+        }
+
+        // 只运行当期贷款的最新一期还款执行提前结清
+        Integer lastTerm = getLoanRecoverListByLoanId(loanRecover.getLoanId())
+                .stream()
+                .map(lr -> lr.getCurrentTerm())
+                .max(Integer::compareTo)
+                .orElse(null);
+        if(!loanRecover.getCurrentTerm().equals(lastTerm)){
+            throw new BusinessException(BusinessExceptionEnum.NOT_LAST_TERM);
+        }
+
+        Loan loan = loanMapper.selectById(loanRecover.getLoanId());
+        // createRepayRecord()中已经计算了累计还款金额，所以要在loanRecover.setActualRepayPrice()之前，避免重复计算
+        RepayRecords repayRecord = loanRecover.createRepayRecord(loan.getBalance());
+        // 如果当期已结清，提前结清金额等于剩余本金
+        if(loanRecover.getTermStatus()==TermStatusEnum.TERM_PAYOFF.getV()){
+            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(loan.getBalance()));
+
+            loan.setBalance(BigDecimal.ZERO);
+            loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
+        }
+/*
+剩余本金1000  当期本200 利100 总300
+--已结清--
+剩余本金：800
+当期提前结清付出：300+800=1100
+--未结清--
+剩余本金：1000
+假设已还款：250
+当期提前结清付出：250+1000+100-250=1100
+
+总结：未结清的先结清吧
+ */
+        else { // 当期未结清，提前结清金额等于剩余本金+当期利息
+            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(loan.getBalance()));
+            loanRecover.setActualRepayDate(LocalDateTime.now());
+        }
+
+        loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
+
+
+    }
+
+    public List<LoanRecover> getLoanRecoverListByLoanId(Integer loanId){
+        return loanRecoverMapper.selectList(
+                new LambdaQueryWrapper<LoanRecover>()
+                        .eq(LoanRecover::getLoanId,loanId)
+        );
     }
 }

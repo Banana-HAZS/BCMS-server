@@ -6,6 +6,7 @@ import com.banana.info.entity.param.GrantLoanParam;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -23,5 +24,9 @@ public interface ILoanRecoverService extends IService<LoanRecover> {
 
     void addLoanRecover(Loan loan);
 
+    @Transactional(rollbackFor = Exception.class)
     void repay(LoanRecoverRepayParam param);
+
+    @Transactional(rollbackFor = Exception.class)
+    void earlyPayoff(LoanRecoverRepayParam param);
 }

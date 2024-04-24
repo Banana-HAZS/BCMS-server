@@ -173,6 +173,11 @@ public class LoanApplyVO implements Serializable {
     private BigDecimal recoveredInterest;
 
     /**
+     * 剩余本金
+     */
+    private BigDecimal balance;
+
+    /**
      * 客户联系方式
      */
     private String customerPhone;

@@ -46,6 +46,7 @@
             loan.late_charge_base,
             loan.loan_purpose,
             loan.recovered_interest,
+            loan.balance,
             customer.phone as customerPhone
         from
             loan

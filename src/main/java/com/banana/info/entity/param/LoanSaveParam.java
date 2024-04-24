@@ -107,6 +107,7 @@ public class LoanSaveParam implements Serializable {
         loan.setLateChargeBase(lateChargeBase);
         loan.setLoanPurpose(loanPurpose);
         loan.setRecoveredInterest(new BigDecimal(0.0000));
+        loan.setBalance(price);
 
         return loan;
     }

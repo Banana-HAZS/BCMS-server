@@ -50,7 +50,7 @@
             and c.phone like concat('%',#{param.customerPhone},'%')
         </if>
         <if test="param.repayStartDate != null">
-            and lr.repay_date >= #{param.repayStartDate
+            and lr.repay_date >= #{param.repayStartDate}
         </if>
         <if test="param.repayEndDate != null">
             and lr.repay_date &lt;= #{param.repayEndDate}

@@ -41,4 +41,10 @@ public class LoanRecoverController {
         loanRecoverService.repay(param);
         return Result.success("还款成功");
     }
+
+    @PostMapping("/earlyPayoff")
+    public Result<?> earlyPayoff(@RequestBody LoanRecoverRepayParam param) {
+        loanRecoverService.earlyPayoff(param);
+        return Result.success("已提前结清");
+    }
 }

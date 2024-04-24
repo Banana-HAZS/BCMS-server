@@ -2,4 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.banana.info.mapper.RepayRecordsMapper">
 
+    <select id="getRepayRecordsList" resultType="com.banana.info.entity.vo.RepayRecordsSearchVO">
+        select
+            rr.*,
+            c.account as customerAccount,
+            c.name as customerName,
+            c.phone as customerPhone,
+            lr.current_term
+        from
+            repay_records as rr
+          join customer as c on c.id = rr.customer_id
+          join loan_recover as lr on lr.id = rr.loan_recover_id
+        where 1=1
+        <if test="param.loanNo != null and param.loanNo != ''">
+            and rr.loan_no like concat('%',#{param.loanNo},'%')
+        </if>
+        <if test="param.loanRecoverNo != null and param.loanRecoverNo != ''">
+            and rr.loan_recover_no like concat('%',#{param.loanRecoverNo},'%')
+        </if>
+        <if test="param.customerAccount != null and param.customerAccount != ''">
+            and c.account like concat('%',#{param.customerAccount},'%')
+        </if>
+        <if test="param.customerName != null and param.customerName != ''">
+            and c.name like concat('%',#{param.customerName},'%')
+        </if>
+        <if test="param.customerPhone != null and param.customerPhone != ''">
+            and c.phone like concat('%',#{param.customerPhone},'%')
+        </if>
+        <if test="param.repayStartDate != null">
+            and rr.repay_date >= #{param.repayStartDate}
+        </if>
+        <if test="param.repayEndDate != null">
+            and rr.repay_date &lt;= #{param.repayEndDate}
+        </if>
+        order by rr.repay_date desc
+    </select>
 </mapper>
