@@ -154,8 +154,10 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             loanRecover.setActualRepayDate(LocalDateTime.now());
 
             Loan loan = loanMapper.selectById(loanRecover.getLoanId());
+            //剩余本金和已收回利息在每一期还款结清时更新
             loan.setBalance(loan.getBalance().subtract(loanRecover.getTermRepayPrincipal()));
             loan.setRecoveredInterest(loan.getRecoveredInterest().add(loanRecover.getTermRepayInterest()));
+            //判断总贷款是否已结清
             if(loan.getBalance().equals(BigDecimal.ZERO)){
                 loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
             }
@@ -171,9 +173,10 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     @Override
     public void earlyPayoff(LoanRecoverRepayParam param) {
         LoanRecover loanRecover = loanRecoverMapper.selectById(param.getId());
-
-        if(loanRecover.getTermStatus()==TermStatusEnum.EARLY_PAYOFF.getV()){
-            throw new BusinessException(BusinessExceptionEnum.REPEATED_EARLY_PAYOFF);
+        Loan loan = loanMapper.selectById(loanRecover.getLoanId());
+        // 贷款已结清不可执行
+        if(loan.getLoanStatus()==LoanStatusEnum.SETTLED.getV()){
+            throw new BusinessException(BusinessExceptionEnum.LOAN_SETTLED);
         }
 
         // 只运行当期贷款的最新一期还款执行提前结清
@@ -186,38 +189,54 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             throw new BusinessException(BusinessExceptionEnum.NOT_LAST_TERM);
         }
 
-        Loan loan = loanMapper.selectById(loanRecover.getLoanId());
-        // createRepayRecord()中已经计算了累计还款金额，所以要在loanRecover.setActualRepayPrice()之前，避免重复计算
-        RepayRecords repayRecord = loanRecover.createRepayRecord(loan.getBalance());
         // 如果当期已结清，提前结清金额等于剩余本金
         if(loanRecover.getTermStatus()==TermStatusEnum.TERM_PAYOFF.getV()){
+            // createRepayRecord()中已经计算了累计还款金额，所以要在loanRecover.setActualRepayPrice()之前，避免重复计算
+            RepayRecords repayRecord = loanRecover.createRepayRecord(loan.getBalance());
+
             loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(loan.getBalance()));
+            loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
 
             loan.setBalance(BigDecimal.ZERO);
             loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
-        }
-/*
-剩余本金1000  当期本200 利100 总300
---已结清--
-剩余本金：800
-当期提前结清付出：300+800=1100
---未结清--
-剩余本金：1000
-假设已还款：250
-当期提前结清付出：250+1000+100-250=1100
 
-总结：未结清的先结清吧
- */
-        else { // 当期未结清，提前结清金额等于剩余本金+当期利息
-            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(loan.getBalance()));
+            repayRecordsMapper.insert(repayRecord);
+        }
+        else { // 当期未结清，提前结清金额等于剩余本金+当期利息-当期累计已还款
+            RepayRecords repayRecord = loanRecover.createRepayRecord(
+                    loan.getBalance()
+                            .add(loanRecover.getTermRepayInterest())
+                            .subtract(loanRecover.getActualRepayPrice()));
+
+            loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
             loanRecover.setActualRepayDate(LocalDateTime.now());
+            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(repayRecord.getRepayPrice()));
+            loanRecover.setRemainRepayPrice(BigDecimal.ZERO);
+
+            loan.setBalance(BigDecimal.ZERO);
+            loan.setRecoveredInterest(loan.getRecoveredInterest().add(loanRecover.getTermRepayInterest()));
+            loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
+
+            repayRecordsMapper.insert(repayRecord);
         }
-
-        loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
-
-
+        loanRecoverMapper.updateById(loanRecover);
+        loanMapper.updateById(loan);
     }
+    /*
+    剩余本金1000  当期本200 利100 总300
+    --已结清--
+    剩余本金：800
+    当期累计还款：800(提前结清)+300(当期结清)=1100
+    --未结清--   当期还款为0时，提前结清：1000(剩余本金)+100(当期利息)=1100
+    剩余本金：1000
+    假设已还款：250    (200本 50利)
+    当期累计还款：
+        提前结清：1000(剩余本金)+100(当期利息)-250
+        当期已还：250
+        总计：1000(剩余本金)+100(当期利息)-250+250=1100
 
+    总结：当期累计还款相等
+     */
     public List<LoanRecover> getLoanRecoverListByLoanId(Integer loanId){
         return loanRecoverMapper.selectList(
                 new LambdaQueryWrapper<LoanRecover>()

@@ -11,7 +11,7 @@ public enum BusinessExceptionEnum {
     GTANT_TYPE_ERROR(20007,"仅可操作待放款的单据"),
     OVERPAY(20008,"超额还款，还款金额不能超过剩余待还金额"),
     NOT_LAST_TERM(20009,"只允许在最新一期还款上执行提前结清"),
-    REPEATED_EARLY_PAYOFF(20010,"已提前结清，不要重复执行"),
+    LOAN_SETTLED(20010,"贷款已结清"),
     ;
 
     private Integer code;
