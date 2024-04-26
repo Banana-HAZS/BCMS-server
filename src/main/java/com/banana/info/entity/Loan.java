@@ -128,6 +128,11 @@ public class Loan implements Serializable {
     private Integer repayTerm;
 
     /**
+     * 当前期数
+     */
+    private Integer currentTerm;
+
+    /**
      * 贷款期限(最后的结清日期)
      */
     private LocalDateTime loanDate;

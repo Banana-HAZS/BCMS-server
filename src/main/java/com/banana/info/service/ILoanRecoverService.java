@@ -3,6 +3,7 @@ package com.banana.info.service;
 import com.banana.info.entity.Loan;
 import com.banana.info.entity.LoanRecover;
 import com.banana.info.entity.param.GrantLoanParam;
+import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -28,5 +29,5 @@ public interface ILoanRecoverService extends IService<LoanRecover> {
     void repay(LoanRecoverRepayParam param);
 
     @Transactional(rollbackFor = Exception.class)
-    void earlyPayoff(LoanRecoverRepayParam param);
+    void earlyPayoff(LoanRecoverEarlyPayoffParam param);
 }

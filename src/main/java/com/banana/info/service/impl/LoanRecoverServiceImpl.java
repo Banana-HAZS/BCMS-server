@@ -8,6 +8,7 @@ import com.banana.info.entity.RepayRecords;
 import com.banana.info.entity.commonEnum.LoanStatusEnum;
 import com.banana.info.entity.commonEnum.RepayMethodEnum;
 import com.banana.info.entity.commonEnum.TermStatusEnum;
+import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.banana.info.entity.vo.LoanApplyVO;
@@ -20,6 +21,8 @@ import com.banana.info.service.IEmployeeService;
 import com.banana.info.service.ILoanRecoverService;
 import com.banana.tool.LoanRecoverNoGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +77,35 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         return data;
     }
 
+    /**
+     * 更新贷款收回记录
+     */
+    public void updateLoanRecover() {
+        List<LoanRecover> loanRecovers = loanRecoverMapper.selectList(null);
+
+        // 更新已逾期记录天数，和贷款收回的逾期罚息
+
+        // 获取待还款的贷款收回
+        List<LoanRecover> WaitRepayLoanRecovers = loanRecovers.stream()
+                .filter(lr->lr.getTermStatus().equals(TermStatusEnum.WAIT_REPAY.getV()))
+                .collect(Collectors.toList());
+        // 本期逾期的贷款收回id
+        List<Integer> overdueRecoverIds = WaitRepayLoanRecovers.stream()
+                .filter(lr -> lr.getRepayDate().isBefore(LocalDateTime.now()))
+                .map(lr -> lr.getId())
+                .collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(overdueRecoverIds)){
+            return;
+        }
+        // 更新状态
+        loanRecoverMapper.update(null, new LambdaUpdateWrapper<LoanRecover>()
+                .in(LoanRecover::getId, overdueRecoverIds)
+                .set(LoanRecover::getTermStatus, TermStatusEnum.OVERDUE.getV()));
+
+        // 创建贷款逾期记录
+        // 更新用户信用等级
+    }
+
     @Override
     public void addLoanRecover(Loan loan) {
         LoanRecover loanRecover = new LoanRecover();
@@ -85,9 +117,9 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         loanRecover.setInterestRate(loan.getInterestRate());
         loanRecover.setActualRepayPrice(BigDecimal.ZERO);
         loanRecover.setLateCharge(BigDecimal.ZERO);
-        loanRecover.setCurrentTerm(1);
+        loanRecover.setCurrentTerm(loan.getCurrentTerm());
         loanRecover.setRemainTerm(loan.getRepayTerm() - loanRecover.getCurrentTerm());
-        loanRecover.setBalance(loan.getPrice());
+        loanRecover.setBalance(loan.getBalance());
         loanRecover.setTermStatus(TermStatusEnum.WAIT_REPAY.getV());
         loanRecover.setDelayNum(0);
         loanRecover.setInterestRateAdjust(BigDecimal.ZERO);
@@ -148,8 +180,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
         BigDecimal actualRepayPrice = loanRecover.getActualRepayPrice().add(param.getRepayPrice());
         BigDecimal remainRepayPrice = loanRecover.getRemainRepayPrice().subtract(param.getRepayPrice());
-        // 判断是否结清
-        if (remainRepayPrice.compareTo(BigDecimal.ZERO) == 0){
+        // 如果贷款已结清，则更新贷款收回、总贷款属性，并创建下一期还款。
+        if (remainRepayPrice.compareTo(BigDecimal.ZERO) == 0) {
             loanRecover.setTermStatus(TermStatusEnum.TERM_PAYOFF.getV());
             loanRecover.setActualRepayDate(LocalDateTime.now());
 
@@ -157,9 +189,14 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             //剩余本金和已收回利息在每一期还款结清时更新
             loan.setBalance(loan.getBalance().subtract(loanRecover.getTermRepayPrincipal()));
             loan.setRecoveredInterest(loan.getRecoveredInterest().add(loanRecover.getTermRepayInterest()));
+
             //判断总贷款是否已结清
-            if(loan.getBalance().equals(BigDecimal.ZERO)){
+            if (loan.getBalance().equals(BigDecimal.ZERO)) {
                 loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
+            }
+            // 未结清，创建下一期还款
+            if (!loan.getLoanStatus().equals(LoanStatusEnum.SETTLED.getV())) {
+                addLoanRecover(loan);
             }
             loanMapper.updateById(loan);
         }
@@ -171,11 +208,11 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     }
 
     @Override
-    public void earlyPayoff(LoanRecoverRepayParam param) {
+    public void earlyPayoff(LoanRecoverEarlyPayoffParam param) {
         LoanRecover loanRecover = loanRecoverMapper.selectById(param.getId());
         Loan loan = loanMapper.selectById(loanRecover.getLoanId());
-        // 贷款已结清不可执行
-        if(loan.getLoanStatus()==LoanStatusEnum.SETTLED.getV()){
+        // 贷款已结清不执行
+        if (loan.getLoanStatus() == LoanStatusEnum.SETTLED.getV()) {
             throw new BusinessException(BusinessExceptionEnum.LOAN_SETTLED);
         }
 
@@ -185,43 +222,40 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
                 .map(lr -> lr.getCurrentTerm())
                 .max(Integer::compareTo)
                 .orElse(null);
-        if(!loanRecover.getCurrentTerm().equals(lastTerm)){
+        if (!loanRecover.getCurrentTerm().equals(lastTerm)) {
             throw new BusinessException(BusinessExceptionEnum.NOT_LAST_TERM);
         }
 
         // 如果当期已结清，提前结清金额等于剩余本金
-        if(loanRecover.getTermStatus()==TermStatusEnum.TERM_PAYOFF.getV()){
+        if (loanRecover.getTermStatus() == TermStatusEnum.TERM_PAYOFF.getV()) {
             // createRepayRecord()中已经计算了累计还款金额，所以要在loanRecover.setActualRepayPrice()之前，避免重复计算
             RepayRecords repayRecord = loanRecover.createRepayRecord(loan.getBalance());
 
-            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(loan.getBalance()));
+            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(repayRecord.getRepayPrice()));
             loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
 
-            loan.setBalance(BigDecimal.ZERO);
-            loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
-
             repayRecordsMapper.insert(repayRecord);
-        }
-        else { // 当期未结清，提前结清金额等于剩余本金+当期利息-当期累计已还款
+        } else { // 当期未结清，提前结清金额等于剩余本金+当期利息-当期累计已还款
             RepayRecords repayRecord = loanRecover.createRepayRecord(
                     loan.getBalance()
                             .add(loanRecover.getTermRepayInterest())
                             .subtract(loanRecover.getActualRepayPrice()));
 
-            loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
             loanRecover.setActualRepayDate(LocalDateTime.now());
             loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(repayRecord.getRepayPrice()));
             loanRecover.setRemainRepayPrice(BigDecimal.ZERO);
 
-            loan.setBalance(BigDecimal.ZERO);
             loan.setRecoveredInterest(loan.getRecoveredInterest().add(loanRecover.getTermRepayInterest()));
-            loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
 
             repayRecordsMapper.insert(repayRecord);
         }
+        loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
+        loan.setBalance(BigDecimal.ZERO);
+        loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
         loanRecoverMapper.updateById(loanRecover);
         loanMapper.updateById(loan);
     }
+
     /*
     剩余本金1000  当期本200 利100 总300
     --已结清--
@@ -237,10 +271,10 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
     总结：当期累计还款相等
      */
-    public List<LoanRecover> getLoanRecoverListByLoanId(Integer loanId){
+    public List<LoanRecover> getLoanRecoverListByLoanId(Integer loanId) {
         return loanRecoverMapper.selectList(
                 new LambdaQueryWrapper<LoanRecover>()
-                        .eq(LoanRecover::getLoanId,loanId)
+                        .eq(LoanRecover::getLoanId, loanId)
         );
     }
 }

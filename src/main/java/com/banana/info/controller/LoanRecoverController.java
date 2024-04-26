@@ -2,6 +2,7 @@ package com.banana.info.controller;
 
 import com.banana.common.Result;
 import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.banana.info.service.ILoanRecoverService;
@@ -30,6 +31,11 @@ public class LoanRecoverController {
     @Autowired
     private ILoanRecoverService loanRecoverService;
 
+    /**
+     * 查询贷款收回记录-同步更新
+     * @param param
+     * @return
+     */
     @PostMapping("/list")
     public Result<Map<String, Object>> getLoanRecoverList(@RequestBody LoanRecoverSearchParam param) {
         Map<String, Object> data = loanRecoverService.getLoanRecoverList(param);
@@ -43,7 +49,7 @@ public class LoanRecoverController {
     }
 
     @PostMapping("/earlyPayoff")
-    public Result<?> earlyPayoff(@RequestBody LoanRecoverRepayParam param) {
+    public Result<?> earlyPayoff(@RequestBody LoanRecoverEarlyPayoffParam param) {
         loanRecoverService.earlyPayoff(param);
         return Result.success("已提前结清");
     }

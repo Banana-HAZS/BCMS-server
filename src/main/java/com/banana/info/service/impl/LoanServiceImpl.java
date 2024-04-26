@@ -151,6 +151,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
         Loan loan = param.toLoan();
         loan.setLoanStatus(LoanStatusEnum.GRANTED.getV());
         loan.setGrantExecutorId(employee.getId());
+        loan.setCurrentTerm(1);
 
         loanMapper.updateById(loan);
 

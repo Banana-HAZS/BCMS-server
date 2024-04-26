@@ -55,6 +55,12 @@ public class LoanController {
         return Result.success("审核成功");
     }
 
+    /**
+     * 贷款发放-同步创建贷款收回记录
+     * @param token
+     * @param param
+     * @return
+     */
     @PostMapping("/grant")
     public Result<?> grantLoan(@RequestHeader("X-Token") String token, @RequestBody GrantLoanParam param) {
         loanService.grantLoan(token, param);
