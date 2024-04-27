@@ -13,12 +13,10 @@ import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.entity.vo.LoanRecoverSearchVO;
-import com.banana.info.mapper.CustomerMapper;
-import com.banana.info.mapper.LoanMapper;
-import com.banana.info.mapper.LoanRecoverMapper;
-import com.banana.info.mapper.RepayRecordsMapper;
+import com.banana.info.mapper.*;
 import com.banana.info.service.IEmployeeService;
 import com.banana.info.service.ILoanRecoverService;
+import com.banana.info.service.IOverdueRecordsService;
 import com.banana.tool.LoanRecoverNoGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -60,7 +58,13 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     private RepayRecordsMapper repayRecordsMapper;
 
     @Resource
+    private OverdueRecordsMapper overdueRecordsMapper;
+
+    @Resource
     private LoanRecoverNoGenerator loanRecoverNoGenerator;
+
+    @Resource
+    private IOverdueRecordsService overdueRecordsService;
 
     @Override
     public Map<String, Object> getLoanRecoverList(LoanRecoverSearchParam param) {
@@ -83,8 +87,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     public void updateLoanRecover() {
         List<LoanRecover> loanRecovers = loanRecoverMapper.selectList(null);
 
-        // 更新已逾期记录天数，和贷款收回的逾期罚息
-
+        // 更新已逾期记录，和贷款收回的逾期罚息
+        overdueRecordsService.updateOverdueRecords();
         // 获取待还款的贷款收回
         List<LoanRecover> WaitRepayLoanRecovers = loanRecovers.stream()
                 .filter(lr->lr.getTermStatus().equals(TermStatusEnum.WAIT_REPAY.getV()))
