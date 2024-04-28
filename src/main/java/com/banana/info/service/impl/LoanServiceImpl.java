@@ -7,6 +7,7 @@ import com.banana.info.entity.Employee;
 import com.banana.info.entity.Loan;
 import com.banana.info.entity.commonEnum.AuditTypeEnum;
 import com.banana.info.entity.commonEnum.LoanStatusEnum;
+import com.banana.info.entity.commonEnum.SysConfig;
 import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.GrantLoanParam;
 import com.banana.info.entity.param.LoanApplyParam;
@@ -94,7 +95,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
                 0, 0, 0);
         // 每一期要大于等于15天，否则向后顺延一月，当前数据按贷款日期计算，仅供前端展示，放款后再按放款日期计算一次
         long days = Duration.between(loan.getApplyDate(), mapNowDate).toDays();
-        if (days >= 15L){
+        if (days >= SysConfig.MIN_DAYS_OF_TERM.getV()){
             loan.setRepayDate(mapNowDate);
         }else{
             loan.setRepayDate(mapNowDate.plusMonths(1));

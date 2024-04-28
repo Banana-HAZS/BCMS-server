@@ -3,6 +3,8 @@ package com.banana.info.service;
 import com.banana.info.entity.OverdueRecords;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 逾期记录表 服务类
@@ -14,4 +16,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface IOverdueRecordsService extends IService<OverdueRecords> {
 
     void updateOverdueRecords();
+
+    void batchAddOverdueRecords(List<Integer> overdueRecoverIds);
 }

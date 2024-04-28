@@ -35,74 +35,14 @@ public class CustomerCredit implements Serializable {
     private Integer customerId;
 
     /**
-     * 贷款次数
+     * 信用分
      */
-    private Integer loanNum;
+    private Integer creditScore;
 
     /**
-     * 贷款总金额
+     * 信用评估等级A(700-950：信用极好)、B(650-700：信用优秀)、C(600-650：信用良好)、D(550-600：信用中等)、E(350-550：信用较差)
      */
-    private BigDecimal loanTotalPrice;
-
-    /**
-     * 逾期还款次数
-     */
-    private Integer lateNum;
-
-    /**
-     * 职业
-     */
-    private String occupation;
-
-    /**
-     * 工作单位
-     */
-    private String workUnit;
-
-    /**
-     * 年收入(元)
-     */
-    private BigDecimal annualIncome;
-
-    /**
-     * 学历
-     */
-    private String educational;
-
-    /**
-     * 负债金额(元)
-     */
-    private BigDecimal debtAmount;
-
-    /**
-     * 房产(平)
-     */
-    private Integer houseProperty;
-
-    /**
-     * 车产(辆)
-     */
-    private Integer carProperty;
-
-    /**
-     * 储蓄(元)
-     */
-    private BigDecimal deposit;
-
-    /**
-     * 信用评估等级(1A、2B、3C、4D、5E)
-     */
-    private Integer creditLevel;
-
-    /**
-     * 初次评估日期
-     */
-    private LocalDateTime evaluateDate;
-
-    /**
-     * 评估人id
-     */
-    private Integer evaluatorId;
+    private String creditLevel;
 
     /**
      * 逻辑删除

@@ -7,6 +7,7 @@ import com.banana.info.entity.LoanRecover;
 import com.banana.info.entity.RepayRecords;
 import com.banana.info.entity.commonEnum.LoanStatusEnum;
 import com.banana.info.entity.commonEnum.RepayMethodEnum;
+import com.banana.info.entity.commonEnum.SysConfig;
 import com.banana.info.entity.commonEnum.TermStatusEnum;
 import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
@@ -14,6 +15,7 @@ import com.banana.info.entity.param.LoanRecoverSearchParam;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.entity.vo.LoanRecoverSearchVO;
 import com.banana.info.mapper.*;
+import com.banana.info.service.ICustomerCreditService;
 import com.banana.info.service.IEmployeeService;
 import com.banana.info.service.ILoanRecoverService;
 import com.banana.info.service.IOverdueRecordsService;
@@ -58,7 +60,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     private RepayRecordsMapper repayRecordsMapper;
 
     @Resource
-    private OverdueRecordsMapper overdueRecordsMapper;
+    private ICustomerCreditService customerCreditService;
 
     @Resource
     private LoanRecoverNoGenerator loanRecoverNoGenerator;
@@ -106,8 +108,10 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
                 .in(LoanRecover::getId, overdueRecoverIds)
                 .set(LoanRecover::getTermStatus, TermStatusEnum.OVERDUE.getV()));
 
-        // 创建贷款逾期记录
+        // 批量创建贷款逾期记录
+        overdueRecordsService.batchAddOverdueRecords(overdueRecoverIds);
         // 更新用户信用等级
+//        customerCreditService
     }
 
     @Override
@@ -130,7 +134,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
         // 按放款日期再计算一次还款日期，每一期要大于等于15天，否则向后顺延一月
         long days = Duration.between(loan.getGrantDate(), loan.getRepayDate()).toDays();
-        if (days >= 15L) {
+        if (days >= SysConfig.MIN_DAYS_OF_TERM.getV()) {
             loanRecover.setRepayDate(loan.getRepayDate());
         } else {
             loanRecover.setRepayDate(loan.getRepayDate().plusMonths(1));

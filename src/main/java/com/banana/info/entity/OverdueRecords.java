@@ -65,6 +65,11 @@ public class OverdueRecords implements Serializable {
     private Integer overdueType;
 
     /**
+     * 逾期时长类型(1普通逾期、2较长逾期、3严重逾期)
+     */
+    private Integer overdueDurationType;
+
+    /**
      * 逾期开始日期
      */
     private LocalDateTime overdueStartDate;
