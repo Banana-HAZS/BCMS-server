@@ -2,18 +2,14 @@ package com.banana.info.controller;
 
 import com.banana.common.Result;
 import com.banana.info.entity.Customer;
-import com.banana.info.entity.Loan;
 import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.GrantLoanParam;
-import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.param.LoanApplySearchParam;
 import com.banana.info.entity.param.LoanSaveParam;
-import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.service.ILoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,7 +28,7 @@ public class LoanController {
     private ILoanService loanService;
 
     @PostMapping("/list")
-    public Result<Map<String, Object>> getLoanList(@RequestBody LoanApplyParam param) {
+    public Result<Map<String, Object>> getLoanList(@RequestBody LoanApplySearchParam param) {
         Map<String, Object> data = loanService.getLoanList(param);
         return Result.success(data);
     }

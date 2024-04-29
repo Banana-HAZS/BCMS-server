@@ -1,7 +1,11 @@
 package com.banana.info.service;
 
 import com.banana.info.entity.CustomerCredit;
+import com.banana.info.entity.param.CustomerCreditSearchParam;
+import com.banana.info.entity.param.LoanApplySearchParam;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -13,4 +17,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ICustomerCreditService extends IService<CustomerCredit> {
 
+    Map<String, Object> getCustomerCreditList(CustomerCreditSearchParam param);
 }

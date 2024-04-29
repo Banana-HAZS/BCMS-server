@@ -26,8 +26,8 @@
                     where loan_status != 5
                     union all
                     select evaluator_id as employee_id
-                    from customer_credit
-                    where customer_credit.deleted != 1
+                    from customer_loan_limit
+                    where customer_loan_limit.deleted != 1
                     ) as subQuery
                 where subQuery.employee_id = employee.id
                 group by employee_id

@@ -10,7 +10,7 @@ import com.banana.info.entity.commonEnum.LoanStatusEnum;
 import com.banana.info.entity.commonEnum.SysConfig;
 import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.GrantLoanParam;
-import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.param.LoanApplySearchParam;
 import com.banana.info.entity.param.LoanSaveParam;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.mapper.CustomerMapper;
@@ -60,7 +60,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     private LoanNoGenerator loanNoGenerator;
 
     @Override
-    public Map<String, Object> getLoanList(LoanApplyParam param) {
+    public Map<String, Object> getLoanList(LoanApplySearchParam param) {
 
         // 时间初始化
         param.dateTimeInit();

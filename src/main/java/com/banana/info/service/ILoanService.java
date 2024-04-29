@@ -4,7 +4,7 @@ import com.banana.info.entity.Customer;
 import com.banana.info.entity.Loan;
 import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.GrantLoanParam;
-import com.banana.info.entity.param.LoanApplyParam;
+import com.banana.info.entity.param.LoanApplySearchParam;
 import com.banana.info.entity.param.LoanSaveParam;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public interface ILoanService extends IService<Loan> {
 
-    Map<String, Object> getLoanList(LoanApplyParam param);
+    Map<String, Object> getLoanList(LoanApplySearchParam param);
 
     Customer getCustomerByIdCard(String idCard);
 
