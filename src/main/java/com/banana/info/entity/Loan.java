@@ -1,5 +1,7 @@
 package com.banana.info.entity;
 
+import com.banana.info.entity.commonEnum.TermStatusEnum;
+import com.banana.tool.LoanRecoverNoGenerator;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
@@ -157,4 +159,22 @@ public class Loan implements Serializable {
      */
     private BigDecimal balance;
 
+    public LoanRecover createLoanRecover() {
+        LoanRecover loanRecover = new LoanRecover();
+        loanRecover.setLoanNo(loanNo);
+        loanRecover.setLoanRecoverNo(LoanRecoverNoGenerator.generateUniqueCode());
+        loanRecover.setCustomerId(customerId);
+        loanRecover.setLoanId(id);
+        loanRecover.setPrice(price);
+        loanRecover.setInterestRate(interestRate);
+        loanRecover.setActualRepayPrice(BigDecimal.ZERO);
+        loanRecover.setLateCharge(BigDecimal.ZERO);
+        loanRecover.setCurrentTerm(currentTerm);
+        loanRecover.setRemainTerm(repayTerm - loanRecover.getCurrentTerm());
+        loanRecover.setBalance(balance);
+        loanRecover.setTermStatus(TermStatusEnum.WAIT_REPAY.getV());
+        loanRecover.setDelayNum(0);
+        loanRecover.setInterestRateAdjust(BigDecimal.ZERO);
+        return loanRecover;
+    }
 }

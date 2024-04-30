@@ -56,8 +56,6 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     @Autowired
     private ILoanRecoverService loanRecoverService;
 
-    @Resource
-    private LoanNoGenerator loanNoGenerator;
 
     @Override
     public Map<String, Object> getLoanList(LoanApplySearchParam param) {
@@ -82,7 +80,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
         Employee employee = employeeService.getUserInfo(token);
 
         Loan loan = param.toLoan();
-        loan.setLoanNo(loanNoGenerator.generateUniqueCode());
+        loan.setLoanNo(LoanNoGenerator.generateUniqueCode());
         loan.setCustomerId(customer.getId());
         loan.setApplyExecutorId(employee.getId());
 

@@ -61,6 +61,8 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
         List<OverdueRecords> overdueingRecords = overdueRecordsMapper.selectList(
                 new LambdaQueryWrapper<OverdueRecords>()
                         .isNull(OverdueRecords::getOverdueEndDate));
+
+        // 更新逾期天数
         // 今日零点(多一毫米才能判定为1天)
         LocalDateTime today = LocalDateTime.now()
                 .withHour(0)
@@ -73,14 +75,21 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
             long millis = Duration.between(or.getOverdueStartDate(), today)
                     .toMillis();
             or.setOverdueDays((int) ((millis + MILLIS_OF_DAY - 1) / MILLIS_OF_DAY));
+
+            // 更新逾期时长类型
+            OverdueDurationTypeEnum overdueDurationType = OverdueDurationTypeEnum.getOverdueDurationType(or.getOverdueDays());
+            or.setOverdueDurationType(overdueDurationType.getV());
+
+            // 逾期罚息计算：逾期罚息 = 逾期金额 * 利率 * 逾期罚息基数 * 逾期时间
             BigDecimal dayInterestRate = loanRecover.getInterestRate()
                     .divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP)
                     .divide(BigDecimal.valueOf(30), RoundingMode.HALF_UP);
-            // 逾期罚息计算：逾期罚息 = 逾期金额 * 利率 * 逾期罚息基数 * 逾期时间
             or.setLateCharge(or.getOverduePrice()
                     .multiply(dayInterestRate)
                     .multiply(or.getLateChargeBase())
                     .multiply(BigDecimal.valueOf(or.getOverdueDays())));
+
+            // 更新提醒状态
             or.setRemindStatus(
                     or.getNextRemindTime().isBefore(today) ?
                             RemindStatusEnum.REMIND_RECOVER.getV() : or.getRemindStatus());
@@ -126,4 +135,5 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
         });
 
     }
+
 }

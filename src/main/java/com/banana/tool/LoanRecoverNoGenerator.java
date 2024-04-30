@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisPoolConfig;
 
 @Component
 public class LoanRecoverNoGenerator {
-    private JedisPool jedisPool;
+    private static JedisPool jedisPool;
     private static final String COUNTER_KEY = "recover";
 
     public LoanRecoverNoGenerator() {
@@ -15,7 +15,7 @@ public class LoanRecoverNoGenerator {
         jedisPool = new JedisPool(poolConfig, "localhost", 6379);
     }
 
-    public String generateUniqueCode() {
+    public static String generateUniqueCode() {
         try (Jedis jedis = jedisPool.getResource()) {
             if (!jedis.exists(COUNTER_KEY)) {
                 jedis.set(COUNTER_KEY, "0");

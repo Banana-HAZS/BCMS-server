@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author ZhaiJianYu
- * @since 2024-04-29
+ * @since 2024-04-30
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -117,5 +117,6 @@ public class CustomerLoanLimit implements Serializable {
      * 逻辑删除
      */
     private Integer deleted;
+
 
 }
