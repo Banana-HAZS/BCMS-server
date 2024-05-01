@@ -1,37 +1,51 @@
-package com.banana.info.entity;
+package com.banana.info.entity.vo;
 
-import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
- * 客户贷款额度表
+ * 
  * </p>
  *
- * @author ZhaiJianYu
- * @since 2024-04-30
+ * @author zjy
+ * @since 2024-03-29
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class CustomerLoanLimit implements Serializable {
+public class CustomerLoanLimitSearchVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 唯一标识
      */
-      @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
      * 客户id
      */
     private Integer customerId;
+
+    /**
+     * 客户账号
+     */
+    private String customerAccount;
+
+    /**
+     * 客户姓名
+     */
+    private String customerName;
+
+    /**
+     * 客户联系方式
+     */
+    private String customerPhone;
 
     /**
      * 职业
@@ -119,9 +133,8 @@ public class CustomerLoanLimit implements Serializable {
     private Integer evaluatorId;
 
     /**
-     * 逻辑删除
+     * 评估人姓名
      */
-    private Integer deleted;
-
+    private String evaluatorName;
 
 }

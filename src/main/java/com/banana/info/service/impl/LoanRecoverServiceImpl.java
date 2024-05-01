@@ -71,6 +71,9 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         // 时间初始化
         param.dateTimeInit();
 
+        // 更新贷款收回记录
+        updateLoanRecover();
+
         Page<LoanRecoverSearchVO> page = loanRecoverMapper.getLoanRecoverPage(param, new Page<>(param.getPageNo(), param.getPageSize()));
 
         Map<String, Object> data = new HashMap<>();
@@ -121,7 +124,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             loanRecover.setTermRepayPrice(loanRecover.getTermRepayInterest());
         }
 
-        // 设置初始待还金额
+        // 设置待还金额
         loanRecover.setRemainRepayPrice(loanRecover.getTermRepayPrice());
 
         loanMapper.updateById(loan);

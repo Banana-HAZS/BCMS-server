@@ -45,10 +45,10 @@ public class IBankCodeGenerator {
         // 注释掉的是要生成的
 //        templateConfig.setController(null);
 //        templateConfig.setService(null);
-//        templateConfig.setEntity(null);
+       templateConfig.setEntity(null);
 //        templateConfig.setServiceImpl(null);
-//        templateConfig.setMapper(null);
-//        templateConfig.setXml(null);
+       templateConfig.setMapper(null);
+       templateConfig.setXml(null);
         autoGenerator.setTemplate(templateConfig);
 
         // 5、策略配置
@@ -61,7 +61,7 @@ public class IBankCodeGenerator {
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(true);
         // 控制要生成的表，如果要生成多个,这里可以传入String[]
-        String[] tableNames = {"delay_records"};
+        String[] tableNames = {"customer_loan_limit"};
         strategy.setInclude(tableNames);
         autoGenerator.setStrategy(strategy);
 

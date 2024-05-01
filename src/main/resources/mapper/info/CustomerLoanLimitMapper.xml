@@ -2,4 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.banana.info.mapper.CustomerLoanLimitMapper">
 
+    <select id="getCustomerLoanLimitList" resultType="com.banana.info.entity.vo.CustomerLoanLimitSearchVO">
+        select
+            cll.*,
+            c.name as customerName,
+            c.account as customerAccount,
+            c.phone as customerPhone,
+            e.name as evaluatorName
+        from
+            customer_loan_limit as cll
+        join customer as c on cll.customer_id = c.id
+        join employee as e on cll.evaluator_id = e.id
+        where 1=1
+        <if test="param.customerAccount != null and param.customerAccount != ''">
+            and c.account like concat('%',#{param.customerAccount},'%')
+        </if>
+        <if test="param.customerName != null and param.customerName != ''">
+            and c.name like concat('%',#{param.customerName},'%')
+        </if>
+        <if test="param.customerPhone != null and param.customerPhone != ''">
+            and c.phone like concat('%',#{param.customerPhone},'%')
+        </if>
+        <if test="param.evaluateStatus != null and param.evaluateStatus != ''">
+            and cll.evaluate_status = #{param.evaluateStatus}
+        </if>
+        <if test="param.loanLimitLevel != null and param.loanLimitLevel != ''">
+            and cll.loan_limit_level = #{param.loanLimitLevel}
+        </if>
+        <if test="param.evaluateStartDate != null and param.evaluateStartDate != ''">
+            and cll.evaluate_date >= #{param.evaluateStartDate}
+        </if>
+        <if test="param.evaluateEndDate != null and param.evaluateEndDate != ''">
+            and cll.evaluate_date &lt;= #{param.evaluateEndDate}
+        </if>
+        order by cll.evaluate_date desc
+    </select>
 </mapper>
