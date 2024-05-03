@@ -1,6 +1,9 @@
 package com.banana.info.entity;
 
 import java.math.BigDecimal;
+
+import com.banana.info.entity.commonEnum.LoanLimitEnum;
+import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
@@ -123,5 +126,14 @@ public class CustomerLoanLimit implements Serializable {
      */
     private Integer deleted;
 
-
+    public GetLoanLimitVO toGetLoanLimitVO(){
+        GetLoanLimitVO getLoanLimitVO = new GetLoanLimitVO();
+        getLoanLimitVO.setId(id);
+        getLoanLimitVO.setLoanLimitLevel(loanLimitLevel);
+        LoanLimitEnum loanLimitEnum = LoanLimitEnum.getEnumByCode(loanLimitLevel);
+        getLoanLimitVO.setLoanLimitLevelName(loanLimitEnum.getName());
+        getLoanLimitVO.setLoanLimit(loanLimitEnum.getLimit());
+        getLoanLimitVO.setEvaluateStatus(evaluateStatus);
+        return getLoanLimitVO;
+    }
 }

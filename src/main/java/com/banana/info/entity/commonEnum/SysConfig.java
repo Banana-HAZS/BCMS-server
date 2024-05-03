@@ -12,6 +12,8 @@ public enum SysConfig {
     OVERDUE_GRACE_PERIOD(7L,"贷款逾期设定7天宽限期"),
     REMIND_INTERVAL(3L,"距离上次催收间隔3天发送一次催收提醒"),
     System(0L,"System","系统Id和名称"),
+    CREDIT_LOAN_PRICE_DOWN(5000L,"一次计入信用分的完整贷款金额下限"),
+    CREDIT_LOAN_TERM_DOWN(6L,"一次计入信用分的完整贷款贷款周期下限"),
     ;
 
     private Long v;

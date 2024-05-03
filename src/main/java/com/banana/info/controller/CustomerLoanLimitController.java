@@ -2,12 +2,9 @@ package com.banana.info.controller;
 
 
 import com.banana.common.Result;
-import com.banana.info.entity.param.AddCustomerLoanLimitParam;
-import com.banana.info.entity.param.CustomerLoanLimitSearchParam;
-import com.banana.info.entity.param.EvaluateCustomerLoanLimitParam;
-import com.banana.info.entity.param.LoanApplySearchParam;
+import com.banana.info.entity.param.*;
+import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.service.ICustomerLoanLimitService;
-import com.banana.info.service.ILoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,5 +42,11 @@ public class CustomerLoanLimitController {
         customerLoanLimitService.evaluateCustomerLoanLimit(token, param);
         return Result.success("评估完成");
     }
+
+    @PostMapping("/getLoanLimit")
+    public Result<GetLoanLimitVO> getLoanLimit(@RequestBody getLoanLimitParam param) {
+        return Result.success(customerLoanLimitService.getLoanLimit(param.getCustomerId()));
+    }
+
 }
 

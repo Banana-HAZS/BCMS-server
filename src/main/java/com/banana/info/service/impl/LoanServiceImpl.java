@@ -12,6 +12,7 @@ import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.GrantLoanParam;
 import com.banana.info.entity.param.LoanApplySearchParam;
 import com.banana.info.entity.param.LoanSaveParam;
+import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.mapper.CustomerMapper;
 import com.banana.info.mapper.LoanMapper;
@@ -22,6 +23,7 @@ import com.banana.tool.LoanNoGenerator;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +58,9 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     @Autowired
     private ILoanRecoverService loanRecoverService;
 
+    @Resource
+    private CustomerLoanLimitServiceImpl customerLoanLimitService;
+
 
     @Override
     public Map<String, Object> getLoanList(LoanApplySearchParam param) {
@@ -76,6 +81,9 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     public void addLoan(String token, LoanSaveParam param) {
 
         Customer customer = getCustomerByIdCard(param.getIdCard());
+
+        // TODO 贷款额度限制判断
+        GetLoanLimitVO loanLimit = customerLoanLimitService.getLoanLimit(customer.getId());
 
         Employee employee = employeeService.getUserInfo(token);
 

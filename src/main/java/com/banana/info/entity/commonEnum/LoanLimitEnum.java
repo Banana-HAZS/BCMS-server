@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,6 +28,16 @@ public enum LoanLimitEnum {
     private String code;
     private String name;
     private BigDecimal limit;
+    private static Map<String, LoanLimitEnum> codeEnumMap;
+
+    static {
+        codeEnumMap = Arrays.stream(LoanLimitEnum.values())
+                .collect(Collectors.toMap(LoanLimitEnum::getCode, Function.identity()));
+    }
+
+    public static LoanLimitEnum getEnumByCode(String code) {
+        return codeEnumMap.get(code);
+    }
 
     public String getCode() {
         return code;

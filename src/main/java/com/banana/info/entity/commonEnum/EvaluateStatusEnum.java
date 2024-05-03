@@ -12,7 +12,13 @@ public enum EvaluateStatusEnum {
     /**
      * 已评估
      */
-    EVALUATED(2);
+    EVALUATED(2),
+
+    /**
+     * 未评估(没有提交客户资产评估)
+     */
+    NOT_COMMIT_EVALUATION(3),
+    ;
 
 
     private Integer v;

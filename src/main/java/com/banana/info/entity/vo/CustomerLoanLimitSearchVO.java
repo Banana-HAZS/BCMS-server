@@ -24,7 +24,6 @@ public class CustomerLoanLimitSearchVO implements Serializable {
     /**
      * 唯一标识
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**

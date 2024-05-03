@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -74,7 +75,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         // 更新贷款收回记录
         updateLoanRecover();
 
-        Page<LoanRecoverSearchVO> page = loanRecoverMapper.getLoanRecoverPage(param, new Page<>(param.getPageNo(), param.getPageSize()));
+        Page<LoanRecoverSearchVO> page = loanRecoverMapper
+                .getLoanRecoverPage(param, new Page<>(param.getPageNo(), param.getPageSize()));
 
         Map<String, Object> data = new HashMap<>();
         data.put("total", page.getTotal());
@@ -91,14 +93,22 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         // 更新已逾期记录，和贷款收回的逾期罚息
         overdueRecordsService.updateOverdueRecords();
         // 获取待还款的贷款收回
-        List<LoanRecover> WaitRepayLoanRecovers = loanRecovers.stream().filter(lr -> lr.getTermStatus().equals(TermStatusEnum.WAIT_REPAY.getV())).collect(Collectors.toList());
+        List<LoanRecover> WaitRepayLoanRecovers = loanRecovers.stream()
+                .filter(lr -> lr.getTermStatus().equals(TermStatusEnum.WAIT_REPAY.getV()))
+                .collect(Collectors.toList());
         // 本期逾期的贷款收回id
-        List<Integer> overdueRecoverIds = WaitRepayLoanRecovers.stream().filter(lr -> lr.getRepayDate().isBefore(LocalDateTime.now())).map(lr -> lr.getId()).collect(Collectors.toList());
+        List<Integer> overdueRecoverIds = WaitRepayLoanRecovers.stream()
+                .filter(lr -> lr.getRepayDate().isBefore(LocalDateTime.now()))
+                .map(lr -> lr.getId())
+                .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(overdueRecoverIds)) {
             return;
         }
         // 更新状态
-        loanRecoverMapper.update(null, new LambdaUpdateWrapper<LoanRecover>().in(LoanRecover::getId, overdueRecoverIds).set(LoanRecover::getTermStatus, TermStatusEnum.OVERDUE.getV()));
+        loanRecoverMapper.update(null,
+                new LambdaUpdateWrapper<LoanRecover>()
+                        .in(LoanRecover::getId, overdueRecoverIds)
+                        .set(LoanRecover::getTermStatus, TermStatusEnum.OVERDUE.getV()));
 
         // 批量创建贷款逾期记录
         overdueRecordsService.batchAddOverdueRecords(overdueRecoverIds);
@@ -150,7 +160,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
                 loan.setLoanDate(loan.getLoanDate().plusMonths(1));
             }
             // 获取更新后的第一期天数
-            days = Duration.between(loan.getGrantDate(), loanRecover.getRepayDate()).toDays();
+            days = Duration.between(loan.getGrantDate(), loanRecover.getRepayDate())
+                    .toDays();
             // 第一期利息按 (还款日期-放款日期)天数 * 日利率
             loanRecover.setTermRepayInterest(loanRecover.getBalance()
                     .multiply(dayInterestRate)
@@ -162,9 +173,10 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         LoanRecover lastLoanRecover = getLastLoanRecover(loan.getId());
 
         // 情况二：最新一期还款存在逾期
-        if(lastLoanRecover.getActualRepayDate().isAfter(lastLoanRecover.getRepayDate())){
+        if (lastLoanRecover.getActualRepayDate().isAfter(lastLoanRecover.getRepayDate())) {
             // 贷款逾期天数小于等于10天，则不影响下一期还款日期，大于10天，则下一期还款日期顺延一月。
-            Long overdueDays = Duration.between(lastLoanRecover.getActualRepayDate(), lastLoanRecover.getRepayDate())
+            Long overdueDays = Duration.between(lastLoanRecover.getActualRepayDate(),
+                            lastLoanRecover.getRepayDate())
                     .toDays();
             if (overdueDays <= SysConfig.OVERDUE_AFFECT_DAYS.getV()) {
                 loanRecover.setRepayDate(lastLoanRecover.getRepayDate().plusMonths(1));
@@ -175,7 +187,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
                 loan.setLoanDate(loan.getLoanDate().plusMonths(1));
             }
             // 获取更新后的当期天数
-            days = Duration.between(lastLoanRecover.getActualRepayDate(), loanRecover.getRepayDate())
+            days = Duration.between(lastLoanRecover.getActualRepayDate(),
+                            loanRecover.getRepayDate())
                     .toDays();
             // 计算利息 (当期还款期限-上一期实际结清日期)天数 * 日利率
             loanRecover.setTermRepayInterest(loanRecover.getBalance()
@@ -206,8 +219,10 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         //创建还款记录
         RepayRecords repayRecord = loanRecover.createRepayRecord(param.getRepayPrice());
 
-        BigDecimal actualRepayPrice = loanRecover.getActualRepayPrice().add(param.getRepayPrice());
-        BigDecimal remainRepayPrice = loanRecover.getRemainRepayPrice().subtract(param.getRepayPrice());
+        BigDecimal actualRepayPrice = loanRecover.getActualRepayPrice()
+                .add(param.getRepayPrice());
+        BigDecimal remainRepayPrice = loanRecover.getRemainRepayPrice()
+                .subtract(param.getRepayPrice());
         // 如果贷款已结清，则更新贷款收回、总贷款属性,同时更新客户信用分，并创建下一期还款。
         if (remainRepayPrice.compareTo(BigDecimal.ZERO) == 0) {
             // 根据结清类型，更新客户信用分
@@ -218,13 +233,23 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
             Loan loan = loanMapper.selectById(loanRecover.getLoanId());
             // 剩余本金和已收回利息在每一期还款结清时更新
-            loan.setBalance(loan.getBalance().subtract(loanRecover.getTermRepayPrincipal()));
-            loan.setRecoveredInterest(loan.getRecoveredInterest().add(loanRecover.getTermRepayInterest()));
+            loan.setBalance(loan.getBalance()
+                    .subtract(loanRecover.getTermRepayPrincipal()));
+            loan.setRecoveredInterest(loan.getRecoveredInterest()
+                    .add(loanRecover.getTermRepayInterest()));
 
             // 判断总贷款是否已结清
             if (loan.getBalance().equals(BigDecimal.ZERO)) {
                 loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
-                // TODO 判断和信用分
+                // 一次计入信用分的贷款需满足贷款金额不小于5000，贷款周期大于6个月，
+                // 若提前结清则计算实际贷款周期
+                if (loan.getPrice().compareTo(
+                        BigDecimal.valueOf(SysConfig.CREDIT_LOAN_PRICE_DOWN.getV())) >= 0 &&
+                    loan.getCurrentTerm() >= SysConfig.CREDIT_LOAN_TERM_DOWN.getV()
+                ){
+                    creditScoreRecordsService.addCreditScoreRecords(loanRecover,
+                            CreditScoreChangeTypeEnum.FULL_LOAN_SETTLE);
+                }
 
             }
             // 未结清，创建下一期还款
@@ -242,16 +267,17 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     }
 
     private void updateCreditScore(LoanRecover loanRecover) {
-        switch (TermStatusEnum.getEnumByV(loanRecover.getTermStatus())){
+        switch (TermStatusEnum.getEnumByV(loanRecover.getTermStatus())) {
             case DELAYED: {
                 // 创建延期还款信用分变更记录
                 creditScoreRecordsService.addCreditScoreRecords(loanRecover,
                         CreditScoreChangeTypeEnum.DELAYED);
                 break;
             }
-            case OVERDUE:{
+            case OVERDUE: {
                 // 创建逾期还款信用分变更记录
-                OverdueRecords overdueRecords = overdueRecordsMapper.selectOne(new LambdaQueryWrapper<OverdueRecords>()
+                OverdueRecords overdueRecords = overdueRecordsMapper.selectOne(
+                        new LambdaQueryWrapper<OverdueRecords>()
                         .eq(OverdueRecords::getLoanRecoverId, loanRecover.getId()));
                 // 获取逾期时长类型
                 OverdueDurationTypeEnum overdueDurationType = OverdueDurationTypeEnum
@@ -260,7 +286,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
                         overdueDurationType.toCreditScoreChangeTypeEnum());
                 break;
             }
-            case WAIT_REPAY:{
+            case WAIT_REPAY: {
                 // 创建正常还款信用分变更记录
                 creditScoreRecordsService.addCreditScoreRecords(loanRecover,
                         CreditScoreChangeTypeEnum.TERM_LOAN_PAYOFF);
@@ -273,33 +299,41 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         LoanRecover loanRecover = loanRecoverMapper.selectById(param.getId());
         Loan loan = loanMapper.selectById(loanRecover.getLoanId());
         // 贷款已结清不执行
-        if (loan.getLoanStatus() == LoanStatusEnum.SETTLED.getV()) {
+        if (Objects.equals(loan.getLoanStatus(), LoanStatusEnum.SETTLED.getV())) {
             throw new BusinessException(BusinessExceptionEnum.LOAN_SETTLED);
         }
 
         // 只运行当期贷款的最新一期还款执行提前结清
-        Integer lastTerm = getLoanRecoverListByLoanId(loanRecover.getLoanId()).stream().map(lr -> lr.getCurrentTerm()).max(Integer::compareTo).orElse(null);
+        Integer lastTerm = getLoanRecoverListByLoanId(loanRecover.getLoanId()).stream()
+                .map(LoanRecover::getCurrentTerm)
+                .max(Integer::compareTo)
+                .orElse(null);
         if (!loanRecover.getCurrentTerm().equals(lastTerm)) {
             throw new BusinessException(BusinessExceptionEnum.NOT_LAST_TERM);
         }
 
         // 如果当期已结清，提前结清金额等于剩余本金
-        if (loanRecover.getTermStatus() == TermStatusEnum.TERM_PAYOFF.getV()) {
+        if (Objects.equals(loanRecover.getTermStatus(), TermStatusEnum.TERM_PAYOFF.getV())) {
             // createRepayRecord()中已经计算了累计还款金额，所以要在loanRecover.setActualRepayPrice()之前，避免重复计算
             RepayRecords repayRecord = loanRecover.createRepayRecord(loan.getBalance());
 
-            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(repayRecord.getRepayPrice()));
+            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice()
+                    .add(repayRecord.getRepayPrice()));
             loanRecover.setTermStatus(TermStatusEnum.EARLY_PAYOFF.getV());
 
             repayRecordsMapper.insert(repayRecord);
         } else { // 当期未结清，提前结清金额等于剩余本金+当期利息-当期累计已还款
-            RepayRecords repayRecord = loanRecover.createRepayRecord(loan.getBalance().add(loanRecover.getTermRepayInterest()).subtract(loanRecover.getActualRepayPrice()));
+            RepayRecords repayRecord = loanRecover.createRepayRecord(loan.getBalance()
+                    .add(loanRecover.getTermRepayInterest())
+                    .subtract(loanRecover.getActualRepayPrice()));
 
             loanRecover.setActualRepayDate(LocalDateTime.now());
-            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice().add(repayRecord.getRepayPrice()));
+            loanRecover.setActualRepayPrice(loanRecover.getActualRepayPrice()
+                    .add(repayRecord.getRepayPrice()));
             loanRecover.setRemainRepayPrice(BigDecimal.ZERO);
 
-            loan.setRecoveredInterest(loan.getRecoveredInterest().add(loanRecover.getTermRepayInterest()));
+            loan.setRecoveredInterest(loan.getRecoveredInterest()
+                    .add(loanRecover.getTermRepayInterest()));
 
             repayRecordsMapper.insert(repayRecord);
         }
@@ -326,13 +360,13 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     总结：当期累计还款相等
      */
     public List<LoanRecover> getLoanRecoverListByLoanId(Integer loanId) {
-        return loanRecoverMapper.selectList(new LambdaQueryWrapper<LoanRecover>().eq(LoanRecover::getLoanId, loanId));
+        return loanRecoverMapper.selectList(new LambdaQueryWrapper<LoanRecover>()
+                .eq(LoanRecover::getLoanId, loanId));
     }
 
     /**
      * 获取当前贷款下最新一期贷款收回
-     * @param loanId
-     * @return
+     *
      */
     private LoanRecover getLastLoanRecover(Integer loanId) {
         return loanRecoverMapper.selectList(new LambdaQueryWrapper<LoanRecover>()

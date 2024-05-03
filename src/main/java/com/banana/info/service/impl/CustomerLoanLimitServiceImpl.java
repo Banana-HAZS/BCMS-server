@@ -3,14 +3,17 @@ package com.banana.info.service.impl;
 import com.banana.info.entity.CustomerLoanLimit;
 import com.banana.info.entity.Employee;
 import com.banana.info.entity.commonEnum.EvaluateStatusEnum;
+import com.banana.info.entity.commonEnum.LoanLimitEnum;
 import com.banana.info.entity.param.AddCustomerLoanLimitParam;
 import com.banana.info.entity.param.CustomerLoanLimitSearchParam;
 import com.banana.info.entity.param.EvaluateCustomerLoanLimitParam;
+import com.banana.info.entity.param.getLoanLimitParam;
 import com.banana.info.entity.vo.CustomerLoanLimitSearchVO;
-import com.banana.info.entity.vo.RepayRecordsSearchVO;
+import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.mapper.CustomerLoanLimitMapper;
 import com.banana.info.service.ICustomerLoanLimitService;
 import com.banana.info.service.IEmployeeService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -69,5 +73,34 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
         customerLoanLimit.setEvaluatorId(employee.getId());
 
         customerLoanLimitMapper.updateById(customerLoanLimit);
+    }
+
+    /**
+     * 获取客户贷款额度
+     * @param param
+     * @return
+     */
+    @Override
+    public GetLoanLimitVO getLoanLimit(Integer customerId) {
+        CustomerLoanLimit customerLoanLimit = customerLoanLimitMapper.selectOne(new LambdaQueryWrapper<CustomerLoanLimit>()
+                .eq(CustomerLoanLimit::getCustomerId, customerId)
+                .orderByDesc(CustomerLoanLimit::getEvaluateDate)
+                .last("limit 1")
+        );
+
+        // 客户没有提交资产评估
+        if (Objects.isNull(customerLoanLimit)) {
+            GetLoanLimitVO getLoanLimitVO = new GetLoanLimitVO();
+            getLoanLimitVO.setEvaluateStatus(EvaluateStatusEnum.NOT_COMMIT_EVALUATION.getV());
+            return getLoanLimitVO;
+        }
+
+        // 客户没有提交资产评估或者提交了资产评估，但评估暂未完成
+        if(customerLoanLimit.getEvaluateStatus()
+                .equals(EvaluateStatusEnum.WAIT_EVALUATE.getV())){
+            customerLoanLimit.setLoanLimitLevel(LoanLimitEnum.F.getCode());
+            return customerLoanLimit.toGetLoanLimitVO();
+        }
+        return customerLoanLimit.toGetLoanLimitVO();
     }
 }
