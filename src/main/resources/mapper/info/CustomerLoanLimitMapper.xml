@@ -12,7 +12,7 @@
         from
             customer_loan_limit as cll
         join customer as c on cll.customer_id = c.id
-        join employee as e on cll.evaluator_id = e.id
+        left join employee as e on cll.evaluator_id = e.id
         where 1=1
         <if test="param.customerAccount != null and param.customerAccount != ''">
             and c.account like concat('%',#{param.customerAccount},'%')

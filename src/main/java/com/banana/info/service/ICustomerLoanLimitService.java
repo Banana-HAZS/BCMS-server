@@ -27,4 +27,8 @@ public interface ICustomerLoanLimitService extends IService<CustomerLoanLimit> {
     void evaluateCustomerLoanLimit(String token, EvaluateCustomerLoanLimitParam param);
 
     GetLoanLimitVO getLoanLimit(Integer customerId);
+
+    void updateCustomerLoanLimit(CustomerLoanLimit param);
+
+    CustomerLoanLimit getLoanLimitById(CustomerLoanLimit param);
 }

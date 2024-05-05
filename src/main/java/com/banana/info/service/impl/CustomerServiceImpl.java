@@ -11,6 +11,7 @@ import com.banana.info.mapper.CustomerCreditMapper;
 import com.banana.info.mapper.CustomerLoanLimitMapper;
 import com.banana.info.mapper.CustomerMapper;
 import com.banana.info.service.ICustomerService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,9 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Resource
+    private CustomerMapper customerMapper;
 
     @Resource
     private CustomerCreditMapper customerCreditMapper;
@@ -62,5 +66,13 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         customerLoanLimit.setLoanLimitLevel(LoanLimitEnum.F.getCode());
         // 初始贷款额度等级F(2千元)
         customerLoanLimitMapper.insert(customerLoanLimit);
+    }
+
+    @Override
+    public Customer getCustomerByIdCard(String idCard) {
+        return customerMapper.selectOne(new LambdaQueryWrapper<Customer>()
+                .eq(Customer::getIdCard, idCard)
+                .last("limit 1")
+        );
     }
 }

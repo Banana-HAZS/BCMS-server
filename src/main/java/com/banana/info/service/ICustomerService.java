@@ -15,4 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ICustomerService extends IService<Customer> {
     @Transactional(rollbackFor = Exception.class)
     void addCustomer(Customer customer);
+
+    Customer getCustomerByIdCard(String idCard);
 }

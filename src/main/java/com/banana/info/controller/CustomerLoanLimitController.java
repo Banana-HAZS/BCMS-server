@@ -2,6 +2,7 @@ package com.banana.info.controller;
 
 
 import com.banana.common.Result;
+import com.banana.info.entity.CustomerLoanLimit;
 import com.banana.info.entity.param.*;
 import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.service.ICustomerLoanLimitService;
@@ -46,6 +47,17 @@ public class CustomerLoanLimitController {
     @PostMapping("/getLoanLimit")
     public Result<GetLoanLimitVO> getLoanLimit(@RequestBody getLoanLimitParam param) {
         return Result.success(customerLoanLimitService.getLoanLimit(param.getCustomerId()));
+    }
+
+    @PostMapping("/getLoanLimitById")
+    public Result<CustomerLoanLimit> getLoanLimitById(@RequestBody CustomerLoanLimit param) {
+        return Result.success(customerLoanLimitService.getLoanLimitById(param));
+    }
+
+    @PostMapping("/update")
+    public Result<Void> updateCustomerLoanLimit(@RequestBody CustomerLoanLimit param) {
+        customerLoanLimitService.updateCustomerLoanLimit(param);
+        return Result.success("更新成功");
     }
 
 }

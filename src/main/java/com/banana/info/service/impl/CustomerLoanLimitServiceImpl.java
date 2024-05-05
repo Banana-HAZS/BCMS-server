@@ -77,7 +77,7 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
 
     /**
      * 获取客户贷款额度
-     * @param param
+     * @param customerId
      * @return
      */
     @Override
@@ -102,5 +102,15 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
             return customerLoanLimit.toGetLoanLimitVO();
         }
         return customerLoanLimit.toGetLoanLimitVO();
+    }
+
+    @Override
+    public void updateCustomerLoanLimit(CustomerLoanLimit param) {
+        customerLoanLimitMapper.updateById(param);
+    }
+
+    @Override
+    public CustomerLoanLimit getLoanLimitById(CustomerLoanLimit param) {
+        return customerLoanLimitMapper.selectById(param.getId());
     }
 }

@@ -12,6 +12,7 @@ public enum BusinessExceptionEnum {
     OVERPAY(20008,"超额还款，还款金额不能超过剩余待还金额"),
     NOT_LAST_TERM(20009,"只允许在最新一期还款上执行提前结清"),
     LOAN_SETTLED(20010,"贷款已结清"),
+    AMOUNT_EXCEEDS_LIMIT(20011,"贷款金额超出当前额度上限"),
     ;
 
     private Integer code;

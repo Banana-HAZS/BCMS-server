@@ -82,8 +82,10 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
 
         Customer customer = getCustomerByIdCard(param.getIdCard());
 
-        // TODO 贷款额度限制判断
         GetLoanLimitVO loanLimit = customerLoanLimitService.getLoanLimit(customer.getId());
+        if (param.getPrice().compareTo(loanLimit.getLoanLimit()) > 0) {
+            throw new BusinessException(BusinessExceptionEnum.AMOUNT_EXCEEDS_LIMIT);
+        }
 
         Employee employee = employeeService.getUserInfo(token);
 
@@ -101,9 +103,9 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
                 0, 0, 0);
         // 每一期要大于等于15天，否则向后顺延一月，当前数据按贷款日期计算，仅供前端展示，放款后再按放款日期计算一次
         long days = Duration.between(loan.getApplyDate(), mapNowDate).toDays();
-        if (days >= SysConfig.MIN_DAYS_OF_TERM.getV()){
+        if (days >= SysConfig.MIN_DAYS_OF_TERM.getV()) {
             loan.setRepayDate(mapNowDate);
-        }else{
+        } else {
             loan.setRepayDate(mapNowDate.plusMonths(1));
         }
         // 贷款期限(最后的还款日期)

@@ -73,6 +73,12 @@ public class CustomerController {
         return Result.success(customer);
     }
 
+    @GetMapping("/idCard/{idCard}")
+    public Result<Customer> getCustomerByIdCard(@PathVariable("idCard") String idCard){
+        Customer customer = customerService.getCustomerByIdCard(idCard);
+        return Result.success(customer);
+    }
+
     @DeleteMapping("/{id}")
     public Result<Customer> deleteById(@PathVariable("id") Integer id){
         customerService.removeById(id);
