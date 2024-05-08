@@ -13,6 +13,7 @@ public enum BusinessExceptionEnum {
     NOT_LAST_TERM(20009,"只允许在最新一期还款上执行提前结清"),
     LOAN_SETTLED(20010,"贷款已结清"),
     AMOUNT_EXCEEDS_LIMIT(20011,"贷款金额超出当前额度上限"),
+    IDCARD_IS_EMPTY(20012,"请输入身份证号码"),
     ;
 
     private Integer code;

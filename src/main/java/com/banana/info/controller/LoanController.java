@@ -63,9 +63,4 @@ public class LoanController {
         return Result.success("放款成功");
     }
 
-    @GetMapping("/idCard/{idCard}")
-    public Result<Customer> fetchUserInfo(@PathVariable("idCard") String idCard) {
-        Customer customer = loanService.getCustomerByIdCard(idCard);
-        return Result.success(customer);
-    }
 }

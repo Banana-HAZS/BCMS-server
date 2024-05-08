@@ -20,5 +20,5 @@ public class EvaluateCustomerLoanLimitParam implements Serializable {
     /**
      * 贷款额度等级S(100亿元)、A+(10亿元)、A(1亿元)、A-(1千万元)、B(1百万元)、C+(50万元)、C(10万元)、D(1万元)、E(5千元)、F(2千元)、G(0元)',
      */
-    private String loan_limit_level;
+    private String loanLimitLevel;
 }

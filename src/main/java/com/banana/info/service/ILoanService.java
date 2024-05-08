@@ -23,8 +23,6 @@ public interface ILoanService extends IService<Loan> {
 
     Map<String, Object> getLoanList(LoanApplySearchParam param);
 
-    Customer getCustomerByIdCard(String idCard);
-
     void addLoan(String token, LoanSaveParam param);
 
     void auditLoan(String token, AuditLoanParam param);

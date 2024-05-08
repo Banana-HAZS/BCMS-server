@@ -65,7 +65,7 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
     @Override
     public void evaluateCustomerLoanLimit(String token, EvaluateCustomerLoanLimitParam param) {
         CustomerLoanLimit customerLoanLimit = customerLoanLimitMapper.selectById(param.getId());
-        customerLoanLimit.setLoanLimitLevel(param.getLoan_limit_level());
+        customerLoanLimit.setLoanLimitLevel(param.getLoanLimitLevel());
         customerLoanLimit.setEvaluateStatus(EvaluateStatusEnum.EVALUATED.getV());
         customerLoanLimit.setEvaluateDate(LocalDateTime.now());
 
@@ -81,7 +81,7 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
      * @return
      */
     @Override
-    public GetLoanLimitVO getLoanLimit(Integer customerId) {
+    public GetLoanLimitVO getLoanLimitByCustomer(Integer customerId) {
         CustomerLoanLimit customerLoanLimit = customerLoanLimitMapper.selectOne(new LambdaQueryWrapper<CustomerLoanLimit>()
                 .eq(CustomerLoanLimit::getCustomerId, customerId)
                 .orderByDesc(CustomerLoanLimit::getEvaluateDate)
@@ -92,6 +92,9 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
         if (Objects.isNull(customerLoanLimit)) {
             GetLoanLimitVO getLoanLimitVO = new GetLoanLimitVO();
             getLoanLimitVO.setEvaluateStatus(EvaluateStatusEnum.NOT_COMMIT_EVALUATION.getV());
+            getLoanLimitVO.setLoanLimitLevel(LoanLimitEnum.F.getCode());
+            getLoanLimitVO.setLoanLimitLevelName(LoanLimitEnum.F.getName());
+            getLoanLimitVO.setLoanLimit(LoanLimitEnum.F.getLimit());
             return getLoanLimitVO;
         }
 

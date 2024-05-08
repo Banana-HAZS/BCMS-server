@@ -16,6 +16,7 @@ import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.mapper.CustomerMapper;
 import com.banana.info.mapper.LoanMapper;
+import com.banana.info.service.ICustomerService;
 import com.banana.info.service.IEmployeeService;
 import com.banana.info.service.ILoanRecoverService;
 import com.banana.info.service.ILoanService;
@@ -50,7 +51,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     private LoanMapper loanMapper;
 
     @Resource
-    private CustomerMapper customerMapper;
+    private ICustomerService customerService;
 
     @Autowired
     private IEmployeeService employeeService;
@@ -80,9 +81,9 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
     @Override
     public void addLoan(String token, LoanSaveParam param) {
 
-        Customer customer = getCustomerByIdCard(param.getIdCard());
+        Customer customer = customerService.getCustomerByIdCard(param.getIdCard());
 
-        GetLoanLimitVO loanLimit = customerLoanLimitService.getLoanLimit(customer.getId());
+        GetLoanLimitVO loanLimit = customerLoanLimitService.getLoanLimitByCustomer(customer.getId());
         if (param.getPrice().compareTo(loanLimit.getLoanLimit()) > 0) {
             throw new BusinessException(BusinessExceptionEnum.AMOUNT_EXCEEDS_LIMIT);
         }
@@ -166,21 +167,5 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
 
         // 贷款发放后，开启贷款收回
         loanRecoverService.addLoanRecover(loanMapper.selectById(param.getId()));
-    }
-
-    @Override
-    public Customer getCustomerByIdCard(String idCard) {
-        if (Objects.isNull(idCard)) {
-            return new Customer();
-        }
-
-        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Customer::getIdCard, idCard);
-        Customer customer = customerMapper.selectOne(wrapper);
-
-        if (Objects.isNull(customer)) {
-            throw new BusinessException(BusinessExceptionEnum.IDCARD_NOT_EXIST);
-        }
-        return customer;
     }
 }

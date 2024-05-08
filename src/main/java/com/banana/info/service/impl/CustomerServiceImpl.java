@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * <p>
@@ -70,9 +71,16 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
 
     @Override
     public Customer getCustomerByIdCard(String idCard) {
-        return customerMapper.selectOne(new LambdaQueryWrapper<Customer>()
+        if (Objects.isNull(idCard)) {
+            throw new BusinessException(BusinessExceptionEnum.IDCARD_NOT_EXIST);
+        }
+        Customer customer = customerMapper.selectOne(new LambdaQueryWrapper<Customer>()
                 .eq(Customer::getIdCard, idCard)
                 .last("limit 1")
         );
+        if (Objects.isNull(customer)) {
+            throw new BusinessException(BusinessExceptionEnum.IDCARD_NOT_EXIST);
+        }
+        return customer;
     }
 }

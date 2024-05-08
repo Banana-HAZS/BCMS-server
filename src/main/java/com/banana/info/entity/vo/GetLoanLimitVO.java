@@ -39,7 +39,7 @@ public class GetLoanLimitVO implements Serializable {
     private BigDecimal loanLimit;
 
     /**
-     * 评估状态(1待评估 2已评估)
+     * 评估状态(1待评估 2已评估 3未评估)
      */
     private Integer evaluateStatus;
 
