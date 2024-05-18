@@ -1,7 +1,10 @@
 package com.banana.info.service;
 
 import com.banana.info.entity.DelayRecords;
+import com.banana.info.entity.param.DelayRecordsSearchParam;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IDelayRecordsService extends IService<DelayRecords> {
 
+    Map<String, Object> getDelayRecordsList(DelayRecordsSearchParam param);
 }

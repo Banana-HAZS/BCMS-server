@@ -186,4 +186,14 @@ public class LoanApplyVO implements Serializable {
      * 客户联系方式
      */
     private String customerPhone;
+
+    /**
+     * 展期累计次数
+     */
+    private Integer delayNum;
+
+    /**
+     * 展期次数最大限制
+     */
+    private Integer delayMaxNum;
 }

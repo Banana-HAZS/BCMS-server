@@ -2,7 +2,9 @@ package com.banana.info.mapper;
 
 import com.banana.info.entity.OverdueRecords;
 import com.banana.info.entity.RepayRecords;
+import com.banana.info.entity.param.OverdueRecordsSearchParam;
 import com.banana.info.entity.param.RepayRecordsSearchParam;
+import com.banana.info.entity.vo.OverdueRecordsSearchVO;
 import com.banana.info.entity.vo.RepayRecordsSearchVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,4 +20,5 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface OverdueRecordsMapper extends BaseMapper<OverdueRecords> {
 
+    Page<OverdueRecordsSearchVO> getOverdueRecordsList(@Param("param") OverdueRecordsSearchParam param, Page<OverdueRecordsSearchVO> page);
 }

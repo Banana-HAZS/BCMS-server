@@ -47,6 +47,8 @@
             loan.loan_purpose,
             loan.recovered_interest,
             loan.balance,
+            loan.delay_num,
+            loan.delay_max_num,
             customer.phone as customerPhone
         from
             loan

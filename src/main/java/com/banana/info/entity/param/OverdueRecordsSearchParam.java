@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class RepayRecordsSearchParam extends PageParam implements Serializable {
+public class OverdueRecordsSearchParam extends PageParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,29 +33,18 @@ public class RepayRecordsSearchParam extends PageParam implements Serializable {
     private String customerName;
 
     /**
-     * 还款日期
+     * 逾期时长类型(1普通逾期、2较长逾期、3严重逾期)
      */
-    private List<LocalDateTime> repayDate;
+    private Integer overdueDurationType;
 
     /**
-     * 还款开始日期
+     * 提醒状态(1暂无、2还款提醒、3已提醒)
      */
-    private LocalDateTime repayStartDate;
-
-    /**
-     * 还款结束日期
-     */
-    private LocalDateTime repayEndDate;
+    private Integer remindStatus;
 
     /**
      * 客户联系方式
      */
     private String customerPhone;
 
-    public void dateTimeInit() {
-        if (CollectionUtils.isNotEmpty(repayDate)) {
-            repayStartDate = repayDate.get(0);
-            repayEndDate = repayDate.get(1);
-        }
-    }
 }

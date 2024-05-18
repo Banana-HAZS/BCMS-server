@@ -1,5 +1,6 @@
 package com.banana.info.service.impl;
 
+import com.banana.info.entity.Loan;
 import com.banana.info.entity.LoanRecover;
 import com.banana.info.entity.OverdueRecords;
 import com.banana.info.entity.RepayRecords;
@@ -7,7 +8,9 @@ import com.banana.info.entity.commonEnum.OverdueDurationTypeEnum;
 import com.banana.info.entity.commonEnum.OverdueTypeEnum;
 import com.banana.info.entity.commonEnum.RemindStatusEnum;
 import com.banana.info.entity.commonEnum.SysConfig;
+import com.banana.info.entity.param.OverdueRecordsSearchParam;
 import com.banana.info.entity.param.RepayRecordsSearchParam;
+import com.banana.info.entity.vo.OverdueRecordsSearchVO;
 import com.banana.info.entity.vo.RepayRecordsSearchVO;
 import com.banana.info.mapper.LoanMapper;
 import com.banana.info.mapper.LoanRecoverMapper;
@@ -95,10 +98,15 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
                             RemindStatusEnum.REMIND_RECOVER.getV() : or.getRemindStatus());
             overdueRecordsMapper.updateById(or);
 
-            // 同步更新loanRecover当期还款金额、逾期罚息
+            // 同步更新loanRecover当期还款金额、逾期罚息、剩余待还金额
+            // 在总贷款处获取最初的还款金额，避免重复累加
+            Loan loan = loanMapper.selectById(loanRecover.getLoanId());
             loanRecover.setLateCharge(or.getLateCharge());
+            loanRecover.setTermRepayInterest(loan.getTermRepayInterest()
+                    .add(loanRecover.getLateCharge()));
             loanRecover.setTermRepayPrice(loanRecover.getTermRepayPrincipal()
-                    .add(loanRecover.getTermRepayInterest())
+                    .add(loanRecover.getTermRepayInterest()));
+            loanRecover.setRemainRepayPrice(loanRecover.getRemainRepayPrice()
                     .add(loanRecover.getLateCharge()));
             loanRecoverMapper.updateById(loanRecover);
         });
@@ -133,7 +141,23 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
 
             overdueRecordsMapper.insert(overdueRecords);
         });
-
     }
 
+    @Override
+    public Map<String, Object> getOverdueRecordsList(OverdueRecordsSearchParam param) {
+
+        Page<OverdueRecordsSearchVO> page = overdueRecordsMapper
+                .getOverdueRecordsList(param, new Page<>(param.getPageNo(), param.getPageSize()));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("total", page.getTotal());
+        data.put("rows", page.getRecords());
+        return data;
+    }
+
+    @Override
+    public OverdueRecords getOverdueRecordsByLoanRecover(Integer loanRecoverId) {
+        return overdueRecordsMapper.selectOne(new LambdaQueryWrapper<OverdueRecords>()
+                .eq(OverdueRecords::getLoanRecoverId, loanRecoverId));
+    }
 }

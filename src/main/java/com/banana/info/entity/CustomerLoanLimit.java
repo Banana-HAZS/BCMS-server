@@ -126,6 +126,11 @@ public class CustomerLoanLimit implements Serializable {
      */
     private Integer deleted;
 
+    /**
+     * 创建日期
+     */
+    private LocalDateTime createDate;
+
     public GetLoanLimitVO toGetLoanLimitVO(){
         GetLoanLimitVO getLoanLimitVO = new GetLoanLimitVO();
         getLoanLimitVO.setId(id);
@@ -134,6 +139,7 @@ public class CustomerLoanLimit implements Serializable {
         getLoanLimitVO.setLoanLimitLevelName(loanLimitEnum.getName());
         getLoanLimitVO.setLoanLimit(loanLimitEnum.getLimit());
         getLoanLimitVO.setEvaluateStatus(evaluateStatus);
+        getLoanLimitVO.setEvaluatorId(evaluatorId);
         return getLoanLimitVO;
     }
 }

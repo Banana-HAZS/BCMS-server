@@ -1,6 +1,13 @@
 package com.banana;
 
 
+import com.banana.info.entity.CustomerCredit;
+import com.banana.info.entity.CustomerLoanLimit;
+import com.banana.info.entity.commonEnum.EvaluateStatusEnum;
+import com.banana.info.entity.commonEnum.LoanLimitEnum;
+import com.banana.info.entity.commonEnum.SysConfig;
+import com.banana.info.mapper.CustomerCreditMapper;
+import com.banana.info.mapper.CustomerLoanLimitMapper;
 import com.banana.info.mapper.LoanMapper;
 import com.banana.tool.LoanNoGenerator;
 import org.junit.jupiter.api.Test;
@@ -15,22 +22,19 @@ import java.time.temporal.ChronoUnit;
 class BCMSServerApplicationTests {
 
     @Resource
-    private LoanNoGenerator loanNoGenerator;
+    private CustomerLoanLimitMapper customerLoanLimitMapper;
 
     @Resource
-    private LoanMapper loanMapper;
+    private CustomerCreditMapper customerCreditMapper;
 
     @Test
     void test() {
-        LocalDateTime dateTime1 = LocalDateTime.of(2022, 1, 1, 12, 0, 0,1000000);
-        System.out.println(dateTime1);
-        LocalDateTime dateTime2 = LocalDateTime.of(2022, 1, 1, 12, 0);
-        System.out.println(dateTime2);
-        long millis = Duration.between(dateTime1, dateTime2)
-                .toMillis();
-        System.out.println(millis);
-        long days = (millis + 86_400_000 - 1) / 86_400_000;
-        // long days = ChronoUnit.DAYS.between(dateTime1, dateTime2);
-        System.out.println(days);
+        for(int i=1;i<=4;++i){
+            // 同步创建客户信用评级
+            CustomerCredit customerCredit = new CustomerCredit();
+            customerCredit.setCustomerId(i);
+            // 默认信用分600，评级C
+            customerCreditMapper.insert(customerCredit);
+        }
     }
 }

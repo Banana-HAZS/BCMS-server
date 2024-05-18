@@ -159,6 +159,16 @@ public class Loan implements Serializable {
      */
     private BigDecimal balance;
 
+    /**
+     * 展期累计次数
+     */
+    private Integer delayNum;
+
+    /**
+     * 展期次数最大限制
+     */
+    private Integer delayMaxNum;
+
     public LoanRecover createLoanRecover() {
         LoanRecover loanRecover = new LoanRecover();
         loanRecover.setLoanNo(loanNo);
@@ -173,7 +183,6 @@ public class Loan implements Serializable {
         loanRecover.setRemainTerm(repayTerm - loanRecover.getCurrentTerm());
         loanRecover.setBalance(balance);
         loanRecover.setTermStatus(TermStatusEnum.WAIT_REPAY.getV());
-        loanRecover.setDelayNum(0);
         loanRecover.setInterestRateAdjust(BigDecimal.ZERO);
         return loanRecover;
     }

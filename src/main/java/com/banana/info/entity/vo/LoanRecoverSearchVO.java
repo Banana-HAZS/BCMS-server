@@ -137,6 +137,11 @@ public class LoanRecoverSearchVO implements Serializable {
     /**
      * 延期月数
      */
+    private Integer delayTerm;
+
+    /**
+     * 展期次数
+     */
     private Integer delayNum;
 
     /**

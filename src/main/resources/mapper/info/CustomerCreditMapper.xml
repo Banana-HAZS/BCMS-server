@@ -5,9 +5,9 @@
     <select id="getCustomerCreditList" resultType="com.banana.info.entity.vo.CustomerCreditSearchVO">
         select
             customer_credit.*,
-            customer.account,
-            customer.name,
-            customer.phone
+            customer.account as customerAccount,
+            customer.name as customerName,
+            customer.phone as customerPhone
         from
             customer_credit
             join customer on customer_credit.customer_id = customer.id

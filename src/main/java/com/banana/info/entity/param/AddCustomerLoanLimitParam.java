@@ -104,6 +104,7 @@ public class AddCustomerLoanLimitParam implements Serializable {
         customerLoanLimit.setAssetValuation(assetValuation);
         customerLoanLimit.setNetAssetValue(netAssetValue);
         customerLoanLimit.setEvaluateStatus(EvaluateStatusEnum.WAIT_EVALUATE.getV());
+        customerLoanLimit.setCreateDate(LocalDateTime.now());
         return customerLoanLimit;
     }
 }

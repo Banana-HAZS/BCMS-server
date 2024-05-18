@@ -1,32 +1,53 @@
-package com.banana.info.entity;
+package com.banana.info.entity.vo;
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
- * 延期记录表
+ * 
  * </p>
  *
- * @author ZhaiJianYu
- * @since 2024-04-30
+ * @author zjy
+ * @since 2024-03-29
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class DelayRecords implements Serializable {
+public class DelayRecordsSearchVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 唯一标识
      */
-      @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
+
+    /**
+     * 贷款流水号
+     */
+    private String loanNo;
+
+    /**
+     * 贷款收回流水号
+     */
+    private String loanRecoverNo;
+
+    /**
+     * 客户id
+     */
+    private Integer customerId;
+
+    /**
+     * 客户账号
+     */
+    private String customerAccount;
+
+    /**
+     * 客户姓名
+     */
+    private String customerName;
 
     /**
      * 贷款id
@@ -39,19 +60,9 @@ public class DelayRecords implements Serializable {
     private Integer loanRecoverId;
 
     /**
-     * 客户id
+     * 客户联系方式
      */
-    private Integer customerId;
-
-    /**
-     * 贷款流水号
-     */
-    private String loanNo;
-
-    /**
-     * 贷款收回流水号
-     */
-    private String loanRecoverNo;
+    private String customerPhone;
 
     /**
      * 展期金额
@@ -94,8 +105,12 @@ public class DelayRecords implements Serializable {
     private Integer remindStatus;
 
     /**
+     * 当前期数
+     */
+    private Integer currentTerm;
+
+    /**
      * 下一次提醒时间
      */
     private LocalDateTime nextRemindTime;
-
 }

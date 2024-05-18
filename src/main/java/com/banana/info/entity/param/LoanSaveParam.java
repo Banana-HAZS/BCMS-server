@@ -1,10 +1,12 @@
 package com.banana.info.entity.param;
 
 import com.banana.info.entity.Loan;
+import com.banana.info.entity.commonEnum.SysConfig;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 /**
@@ -108,6 +110,10 @@ public class LoanSaveParam implements Serializable {
         loan.setLoanPurpose(loanPurpose);
         loan.setRecoveredInterest(new BigDecimal(0.0000));
         loan.setBalance(price);
+        loan.setDelayMaxNum(SysConfig.LOAN_DEALY_VALID_NUM.getBv()
+                .multiply(BigDecimal.valueOf(repayTerm))
+                .setScale(0, RoundingMode.DOWN)
+                .intValue());
 
         return loan;
     }

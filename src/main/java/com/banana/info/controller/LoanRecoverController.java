@@ -1,15 +1,14 @@
 package com.banana.info.controller;
 
 import com.banana.common.Result;
+import com.banana.info.entity.param.LoanRecoverDelayPayoffParam;
 import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
+import com.banana.info.entity.vo.InitDelayFormVO;
 import com.banana.info.service.ILoanRecoverService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -49,5 +48,16 @@ public class LoanRecoverController {
     public Result<?> earlyPayoff(@RequestBody LoanRecoverEarlyPayoffParam param) {
         loanRecoverService.earlyPayoff(param);
         return Result.success("已提前结清");
+    }
+
+    @PostMapping("/delayPayoff")
+    public Result<?> delayPayoff(@RequestBody LoanRecoverDelayPayoffParam param) {
+        loanRecoverService.delayPayoff(param);
+        return Result.success("当期还款期限已延期");
+    }
+
+    @GetMapping("/initDelayForm")
+    public Result<InitDelayFormVO> initDelayForm() {
+        return Result.success(loanRecoverService.initDelayForm());
     }
 }

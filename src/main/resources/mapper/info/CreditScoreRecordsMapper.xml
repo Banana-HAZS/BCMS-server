@@ -27,6 +27,9 @@
         <if test="param.customerPhone != null and param.customerPhone != ''">
             and c.phone like concat('%',#{param.customerPhone},'%')
         </if>
+        <if test="param.changeType != null">
+            and csr.change_type = #{param.changeType}
+        </if>
         <if test="param.changeStartDate != null">
             and csr.change_date >= #{param.changeStartDate}
         </if>

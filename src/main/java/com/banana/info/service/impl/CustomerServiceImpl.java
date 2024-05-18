@@ -5,6 +5,7 @@ import com.banana.common.BusinessExceptionEnum;
 import com.banana.info.entity.Customer;
 import com.banana.info.entity.CustomerCredit;
 import com.banana.info.entity.CustomerLoanLimit;
+import com.banana.info.entity.commonEnum.EvaluateStatusEnum;
 import com.banana.info.entity.commonEnum.LoanLimitEnum;
 import com.banana.info.entity.commonEnum.SysConfig;
 import com.banana.info.mapper.CustomerCreditMapper;
@@ -63,9 +64,12 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         CustomerLoanLimit customerLoanLimit = new CustomerLoanLimit();
         customerLoanLimit.setCustomerId(customer.getId());
         // 第一次由系统自动评估
-        customerLoanLimit.setEvaluatorId(SysConfig.System.getV().intValue());
-        customerLoanLimit.setLoanLimitLevel(LoanLimitEnum.F.getCode());
-        // 初始贷款额度等级F(2千元)
+        customerLoanLimit.setEvaluatorId(SysConfig.SYSTEM.getV().intValue());
+        customerLoanLimit.setEvaluateStatus(EvaluateStatusEnum.EVALUATED.getV());
+        customerLoanLimit.setEvaluateDate(LocalDateTime.now());
+        customerLoanLimit.setLoanLimitLevel(LoanLimitEnum.F_PLUS.getCode());
+        customerLoanLimit.setCreateDate(LocalDateTime.now());
+        // 初始贷款额度等级F+(3千元)
         customerLoanLimitMapper.insert(customerLoanLimit);
     }
 

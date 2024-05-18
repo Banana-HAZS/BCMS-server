@@ -2,10 +2,8 @@ package com.banana.info.service;
 
 import com.banana.info.entity.Loan;
 import com.banana.info.entity.LoanRecover;
-import com.banana.info.entity.param.GrantLoanParam;
-import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
-import com.banana.info.entity.param.LoanRecoverRepayParam;
-import com.banana.info.entity.param.LoanRecoverSearchParam;
+import com.banana.info.entity.param.*;
+import com.banana.info.entity.vo.InitDelayFormVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,4 +28,9 @@ public interface ILoanRecoverService extends IService<LoanRecover> {
 
     @Transactional(rollbackFor = Exception.class)
     void earlyPayoff(LoanRecoverEarlyPayoffParam param);
+
+    @Transactional(rollbackFor = Exception.class)
+    void delayPayoff(LoanRecoverDelayPayoffParam param);
+
+    InitDelayFormVO initDelayForm();
 }

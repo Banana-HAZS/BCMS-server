@@ -1,7 +1,9 @@
 package com.banana.info.controller;
 
 import com.banana.common.Result;
+import com.banana.info.entity.CustomerCredit;
 import com.banana.info.entity.param.CustomerCreditSearchParam;
+import com.banana.info.entity.param.GetCreditLevelParam;
 import com.banana.info.entity.param.LoanApplySearchParam;
 import com.banana.info.service.ICustomerCreditService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +33,10 @@ public class CustomerCreditController {
     public Result<Map<String, Object>> getCustomerCreditList(@RequestBody CustomerCreditSearchParam param) {
         Map<String, Object> data = customerCreditService.getCustomerCreditList(param);
         return Result.success(data);
+    }
+
+    @PostMapping("/getCreditLevel")
+    public Result<CustomerCredit> getCreditLevel(@RequestBody GetCreditLevelParam param) {
+        return Result.success(customerCreditService.getCreditLevel(param));
     }
 }

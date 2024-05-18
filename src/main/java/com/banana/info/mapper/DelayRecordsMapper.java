@@ -1,7 +1,11 @@
 package com.banana.info.mapper;
 
 import com.banana.info.entity.DelayRecords;
+import com.banana.info.entity.param.DelayRecordsSearchParam;
+import com.banana.info.entity.vo.DelayRecordsSearchVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -13,4 +17,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface DelayRecordsMapper extends BaseMapper<DelayRecords> {
 
+    Page<DelayRecordsSearchVO> getDelayRecordsList(@Param("param") DelayRecordsSearchParam param, Page<DelayRecordsSearchVO> page);
 }

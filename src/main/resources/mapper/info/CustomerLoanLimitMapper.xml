@@ -35,6 +35,6 @@
         <if test="param.evaluateEndDate != null and param.evaluateEndDate != ''">
             and cll.evaluate_date &lt;= #{param.evaluateEndDate}
         </if>
-        order by cll.evaluate_date desc
+        order by cll.create_date desc
     </select>
 </mapper>

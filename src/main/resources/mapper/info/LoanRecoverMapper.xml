@@ -26,6 +26,7 @@
             lr.late_charge,
             lr.balance,
             lr.term_status,
+            lr.delay_term,
             lr.delay_num,
             lr.interest_rate_adjust,
             c.phone as customerPhone

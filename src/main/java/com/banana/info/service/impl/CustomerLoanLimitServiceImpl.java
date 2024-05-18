@@ -84,26 +84,11 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
     public GetLoanLimitVO getLoanLimitByCustomer(Integer customerId) {
         CustomerLoanLimit customerLoanLimit = customerLoanLimitMapper.selectOne(new LambdaQueryWrapper<CustomerLoanLimit>()
                 .eq(CustomerLoanLimit::getCustomerId, customerId)
+                .eq(CustomerLoanLimit::getEvaluateStatus,EvaluateStatusEnum.EVALUATED.getV())
                 .orderByDesc(CustomerLoanLimit::getEvaluateDate)
                 .last("limit 1")
         );
 
-        // 客户没有提交资产评估
-        if (Objects.isNull(customerLoanLimit)) {
-            GetLoanLimitVO getLoanLimitVO = new GetLoanLimitVO();
-            getLoanLimitVO.setEvaluateStatus(EvaluateStatusEnum.NOT_COMMIT_EVALUATION.getV());
-            getLoanLimitVO.setLoanLimitLevel(LoanLimitEnum.F.getCode());
-            getLoanLimitVO.setLoanLimitLevelName(LoanLimitEnum.F.getName());
-            getLoanLimitVO.setLoanLimit(LoanLimitEnum.F.getLimit());
-            return getLoanLimitVO;
-        }
-
-        // 客户没有提交资产评估或者提交了资产评估，但评估暂未完成
-        if(customerLoanLimit.getEvaluateStatus()
-                .equals(EvaluateStatusEnum.WAIT_EVALUATE.getV())){
-            customerLoanLimit.setLoanLimitLevel(LoanLimitEnum.F.getCode());
-            return customerLoanLimit.toGetLoanLimitVO();
-        }
         return customerLoanLimit.toGetLoanLimitVO();
     }
 

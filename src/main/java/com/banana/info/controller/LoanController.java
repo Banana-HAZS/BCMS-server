@@ -48,7 +48,7 @@ public class LoanController {
     @PostMapping("/reject")
     public Result<?> rejectLoan(@RequestHeader("X-Token") String token, @RequestBody AuditLoanParam param) {
         loanService.rejectLoan(token, param);
-        return Result.success("审核成功");
+        return Result.success("已驳回");
     }
 
     /**

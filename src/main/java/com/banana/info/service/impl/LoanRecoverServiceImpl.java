@@ -2,14 +2,13 @@ package com.banana.info.service.impl;
 
 import com.banana.common.BusinessException;
 import com.banana.common.BusinessExceptionEnum;
-import com.banana.info.entity.Loan;
-import com.banana.info.entity.LoanRecover;
-import com.banana.info.entity.OverdueRecords;
-import com.banana.info.entity.RepayRecords;
+import com.banana.info.entity.*;
 import com.banana.info.entity.commonEnum.*;
+import com.banana.info.entity.param.LoanRecoverDelayPayoffParam;
 import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
 import com.banana.info.entity.param.LoanRecoverRepayParam;
 import com.banana.info.entity.param.LoanRecoverSearchParam;
+import com.banana.info.entity.vo.InitDelayFormVO;
 import com.banana.info.entity.vo.LoanRecoverSearchVO;
 import com.banana.info.mapper.*;
 import com.banana.info.service.ICustomerCreditService;
@@ -18,6 +17,7 @@ import com.banana.info.service.IOverdueRecordsService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sun.xml.internal.bind.v2.TODO;
@@ -55,7 +55,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     private RepayRecordsMapper repayRecordsMapper;
 
     @Resource
-    private ICustomerCreditService customerCreditService;
+    private CustomerCreditServiceImpl customerCreditService;
 
     @Resource
     private IOverdueRecordsService overdueRecordsService;
@@ -65,6 +65,9 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
     @Resource
     private CreditScoreRecordsServiceImpl creditScoreRecordsService;
+
+    @Resource
+    private DelayRecordsMapper delayRecordsMapper;
 
     @Override
     public Map<String, Object> getLoanRecoverList(LoanRecoverSearchParam param) {
@@ -125,13 +128,20 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             loanRecover.setTermRepayPrice(loan.getTermRepayPrice());
             loanRecover.setTermRepayPrincipal(loanRecover.getTermRepayPrice()
                     .subtract(loanRecover.getTermRepayInterest()));
+            loan.setTermRepayPrincipal(loanRecover.getTermRepayPrincipal());
         } else if (loan.getRepayMethod() == RepayMethodEnum.EQUAL_PRINCIPAL.getV()) {
             loanRecover.setTermRepayPrincipal(loan.getTermRepayPrincipal());
             loanRecover.setTermRepayPrice(loanRecover.getTermRepayPrincipal()
                     .add(loanRecover.getTermRepayInterest()));
+            loan.setTermRepayPrice(loanRecover.getTermRepayPrice());
         } else if (loan.getRepayMethod() == RepayMethodEnum.INTEREST_REGULARLY.getV()) {
-            loanRecover.setTermRepayPrincipal(BigDecimal.ZERO);
-            loanRecover.setTermRepayPrice(loanRecover.getTermRepayInterest());
+            BigDecimal principal = loan.getCurrentTerm().equals(loan.getRepayTerm()) ?
+                    loan.getPrice() : BigDecimal.ZERO;
+            loanRecover.setTermRepayPrincipal(principal);
+            loanRecover.setTermRepayPrice(loanRecover.getTermRepayInterest()
+                    .add(loanRecover.getTermRepayPrincipal()));
+            loan.setTermRepayPrincipal(loanRecover.getTermRepayPrincipal());
+            loan.setTermRepayPrice(loanRecover.getTermRepayPrice());
         }
 
         // 设置待还金额
@@ -166,6 +176,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             loanRecover.setTermRepayInterest(loanRecover.getBalance()
                     .multiply(dayInterestRate)
                     .multiply(BigDecimal.valueOf(days)));
+            loan.setTermRepayInterest(loanRecover.getTermRepayInterest());
             return;
         }
 
@@ -194,6 +205,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             loanRecover.setTermRepayInterest(loanRecover.getBalance()
                     .multiply(dayInterestRate)
                     .multiply(BigDecimal.valueOf(days)));
+            loan.setTermRepayInterest(loanRecover.getTermRepayInterest());
             return;
         }
 
@@ -205,6 +217,7 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         loanRecover.setTermRepayInterest(loanRecover.getBalance()
                 .multiply(dayInterestRate)
                 .multiply(BigDecimal.valueOf(SysConfig.DAYS_OF_MONTH.getV())));
+        loan.setTermRepayInterest(loanRecover.getTermRepayInterest());
     }
 
     @Override
@@ -218,16 +231,31 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
         //创建还款记录
         RepayRecords repayRecord = loanRecover.createRepayRecord(param.getRepayPrice());
+        repayRecordsMapper.insert(repayRecord);
 
         BigDecimal actualRepayPrice = loanRecover.getActualRepayPrice()
                 .add(param.getRepayPrice());
         BigDecimal remainRepayPrice = loanRecover.getRemainRepayPrice()
                 .subtract(param.getRepayPrice());
-        // 如果贷款已结清，则更新贷款收回、总贷款属性,同时更新客户信用分，并创建下一期还款。
+
+        loanRecover.setActualRepayPrice(actualRepayPrice);
+        loanRecover.setRemainRepayPrice(remainRepayPrice);
+        loanRecoverMapper.updateById(loanRecover);
+
+        // 如果贷款已结清，则更新贷款收回、总贷款属性，同时更新客户信用分，并创建下一期还款。
         if (remainRepayPrice.compareTo(BigDecimal.ZERO) == 0) {
             // 根据结清类型，更新客户信用分
             updateCreditScore(loanRecover);
 
+            // 有逾期的需要同步更新逾期结束日期
+            OverdueRecords overdueRecords = overdueRecordsService
+                    .getOverdueRecordsByLoanRecover(loanRecover.getId());
+            if (ObjectUtils.isNotEmpty(overdueRecords)) {
+                overdueRecords.setOverdueEndDate(LocalDateTime.now());
+                overdueRecordsMapper.updateById(overdueRecords);
+            }
+
+            // 更新贷款收回状态
             loanRecover.setTermStatus(TermStatusEnum.TERM_PAYOFF.getV());
             loanRecover.setActualRepayDate(LocalDateTime.now());
 
@@ -239,19 +267,22 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
                     .add(loanRecover.getTermRepayInterest()));
 
             // 判断总贷款是否已结清
-            if (loan.getBalance().equals(BigDecimal.ZERO)) {
+            if (loan.getCurrentTerm().equals(loan.getRepayTerm())) {
                 loan.setLoanStatus(LoanStatusEnum.SETTLED.getV());
-                // 一次计入信用分的贷款需满足贷款金额不小于5000，贷款周期大于6个月，
+                // 一次计入信用分的贷款需满足贷款金额不小于5000，贷款周期大于6个月
                 // 若提前结清则计算实际贷款周期
                 if (loan.getPrice().compareTo(
                         BigDecimal.valueOf(SysConfig.CREDIT_LOAN_PRICE_DOWN.getV())) >= 0 &&
-                    loan.getCurrentTerm() >= SysConfig.CREDIT_LOAN_TERM_DOWN.getV()
-                ){
+                        loan.getCurrentTerm() >= SysConfig.CREDIT_LOAN_TERM_DOWN.getV()
+                ) {
                     creditScoreRecordsService.addCreditScoreRecords(loanRecover,
                             CreditScoreChangeTypeEnum.FULL_LOAN_SETTLE);
+                    customerCreditService.updateCustomerCreditScore(loanRecover.getCustomerId(),
+                            CreditScoreChangeTypeEnum.FULL_LOAN_SETTLE);
                 }
-
             }
+            // 这里需要更新一下数据库，避免下面创建下一期还款时获取到过时信息
+            loanRecoverMapper.updateById(loanRecover);
             // 未结清，创建下一期还款
             if (!loan.getLoanStatus().equals(LoanStatusEnum.SETTLED.getV())) {
                 loan.setCurrentTerm(loan.getCurrentTerm() + 1);
@@ -259,11 +290,6 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
             }
             loanMapper.updateById(loan);
         }
-        loanRecover.setActualRepayPrice(actualRepayPrice);
-        loanRecover.setRemainRepayPrice(remainRepayPrice);
-
-        loanRecoverMapper.updateById(loanRecover);
-        repayRecordsMapper.insert(repayRecord);
     }
 
     private void updateCreditScore(LoanRecover loanRecover) {
@@ -272,23 +298,29 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
                 // 创建延期还款信用分变更记录
                 creditScoreRecordsService.addCreditScoreRecords(loanRecover,
                         CreditScoreChangeTypeEnum.DELAYED);
+                customerCreditService.updateCustomerCreditScore(loanRecover.getCustomerId(),
+                        CreditScoreChangeTypeEnum.DELAYED);
                 break;
             }
             case OVERDUE: {
                 // 创建逾期还款信用分变更记录
                 OverdueRecords overdueRecords = overdueRecordsMapper.selectOne(
                         new LambdaQueryWrapper<OverdueRecords>()
-                        .eq(OverdueRecords::getLoanRecoverId, loanRecover.getId()));
+                                .eq(OverdueRecords::getLoanRecoverId, loanRecover.getId()));
                 // 获取逾期时长类型
                 OverdueDurationTypeEnum overdueDurationType = OverdueDurationTypeEnum
                         .getEnumByV(overdueRecords.getOverdueDurationType());
                 creditScoreRecordsService.addCreditScoreRecords(loanRecover,
+                        overdueDurationType.toCreditScoreChangeTypeEnum());
+                customerCreditService.updateCustomerCreditScore(loanRecover.getCustomerId(),
                         overdueDurationType.toCreditScoreChangeTypeEnum());
                 break;
             }
             case WAIT_REPAY: {
                 // 创建正常还款信用分变更记录
                 creditScoreRecordsService.addCreditScoreRecords(loanRecover,
+                        CreditScoreChangeTypeEnum.TERM_LOAN_PAYOFF);
+                customerCreditService.updateCustomerCreditScore(loanRecover.getCustomerId(),
                         CreditScoreChangeTypeEnum.TERM_LOAN_PAYOFF);
             }
         }
@@ -344,6 +376,84 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         loanMapper.updateById(loan);
     }
 
+    @Override
+    public void delayPayoff(LoanRecoverDelayPayoffParam param) {
+        LoanRecover loanRecover = loanRecoverMapper.selectById(param.getId());
+        Loan loan = loanMapper.selectById(loanRecover.getLoanId());
+
+        // 只有待还款状态下允许展期
+        if (!loanRecover.getTermStatus().equals(TermStatusEnum.WAIT_REPAY.getV())) {
+            throw new BusinessException(BusinessExceptionEnum.DELAY_STATUS_INVALID);
+        }
+
+        // 超过延期允许次数则驳回
+        if (Objects.equals(loan.getDelayNum(), loan.getDelayMaxNum())) {
+            throw new BusinessException(BusinessExceptionEnum.DELAY_NUM_REACHED_LOAN_MAX);
+        }
+        if (Objects.equals(loanRecover.getDelayNum(), SysConfig.LOAN_RECOVER_DEALY_VALID_NUM.getV().intValue())) {
+            throw new BusinessException(BusinessExceptionEnum.DELAY_NUM_REACHED_LOAN_RECOVER_MAX);
+        }
+        // 超过延期允许的最大期限则驳回
+        if (param.getDelayTerms() > SysConfig.DELAY_MAX_LIMIT.getV()){
+            throw new BusinessException(BusinessExceptionEnum.DELAY_TERMS_EXCEEDS_LIMIT);
+        }
+
+        // 1. 新建延期还款记录
+        DelayRecords delayRecords = new DelayRecords();
+        delayRecords.setLoanId(loanRecover.getLoanId());
+        delayRecords.setLoanRecoverId(loanRecover.getId());
+        delayRecords.setCustomerId(loanRecover.getCustomerId());
+        delayRecords.setLoanNo(loanRecover.getLoanNo());
+        delayRecords.setLoanRecoverNo(loanRecover.getLoanRecoverNo());
+        delayRecords.setDelayPrice(param.getDelayPrice());
+        delayRecords.setDelayStartDate(param.getDelayStartDate());
+        delayRecords.setDelayEndDate(param.getDelayEndDate());
+        delayRecords.setDelayTerms(param.getDelayTerms());
+        delayRecords.setDelayChargeBase(param.getDelayChargeBase());
+        delayRecords.setDelayCharge(param.getDelayCharge());
+        delayRecords.setDelayInterestAdjust(param.getDelayInterestAdjust());
+        delayRecords.setRemindStatus(RemindStatusEnum.CURRENT_NOT.getV());
+        delayRecords.setNextRemindTime(delayRecords.getDelayEndDate().plusDays(-2L));
+        delayRecordsMapper.insert(delayRecords);
+
+        // 2. 更新loanRecover
+        // 展期期间利率调整，不影响调整前的利息
+        loanRecover.setInterestRate(loanRecover.getInterestRate().add(param.getDelayInterestAdjust()));
+        loanRecover.setRepayDate(param.getDelayEndDate());
+        // 展期期间月利率
+        BigDecimal monthInterestRate = loanRecover.getInterestRate()
+                .divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP);
+        // 展期期间利息
+        BigDecimal delayTermInterest = loanRecover.getBalance()
+                .multiply(monthInterestRate);
+        loanRecover.setTermRepayInterest(loanRecover.getTermRepayInterest().add(delayTermInterest));
+        loanRecover.setTermRepayPrice(loanRecover.getTermRepayPrincipal()
+                .add(loanRecover.getTermRepayInterest()));
+        loanRecover.setRemainRepayPrice(loanRecover.getTermRepayPrice()
+                .subtract(loanRecover.getActualRepayPrice()));
+        loanRecover.setTermStatus(TermStatusEnum.DELAYED.getV());
+        loanRecover.setDelayTerm(param.getDelayTerms());
+        loanRecover.setInterestRateAdjust(param.getDelayInterestAdjust());
+        loanRecover.setDelayNum(loanRecover.getDelayNum() + 1);
+        loanRecoverMapper.updateById(loanRecover);
+
+        // 3. 更新loan
+        loan.setRepayDate(loanRecover.getRepayDate());
+        loan.setTermRepayInterest(loanRecover.getTermRepayInterest());
+        loan.setTermRepayPrice(loanRecover.getTermRepayPrice());
+        loan.setLoanDate(loan.getLoanDate().plusMonths(param.getDelayTerms()));
+        loan.setDelayNum(loan.getDelayNum() + 1);
+        loanMapper.updateById(loan);
+    }
+
+    @Override
+    public InitDelayFormVO initDelayForm() {
+        InitDelayFormVO initDelayFormVO = new InitDelayFormVO();
+        initDelayFormVO.setDelayChargeBase(SysConfig.DELAY_CHARGE_BASE.getBv());
+        initDelayFormVO.setDelayInterestAdjust(SysConfig.DELAY_INTEREST_ADJUST.getBv());
+        return initDelayFormVO;
+    }
+
     /*
     剩余本金1000  当期本200 利100 总300
     --已结清--
@@ -366,7 +476,6 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
     /**
      * 获取当前贷款下最新一期贷款收回
-     *
      */
     private LoanRecover getLastLoanRecover(Integer loanId) {
         return loanRecoverMapper.selectList(new LambdaQueryWrapper<LoanRecover>()

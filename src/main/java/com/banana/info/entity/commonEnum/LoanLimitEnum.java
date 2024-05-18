@@ -22,6 +22,7 @@ public enum LoanLimitEnum {
     C("C", "C类客户", new BigDecimal("100000")),
     D("D", "D类客户", new BigDecimal("10000")),
     E("E", "E类客户", new BigDecimal("5000")),
+    F_PLUS("F+", "F+类客户", new BigDecimal("3000")),
     F("F", "F类客户", new BigDecimal("2000")),
     G("G", "G类客户", new BigDecimal("0"));
 
@@ -38,6 +39,8 @@ public enum LoanLimitEnum {
     public static LoanLimitEnum getEnumByCode(String code) {
         return codeEnumMap.get(code);
     }
+
+
 
     public String getCode() {
         return code;

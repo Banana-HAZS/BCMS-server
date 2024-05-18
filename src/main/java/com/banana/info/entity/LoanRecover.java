@@ -120,14 +120,19 @@ public class LoanRecover implements Serializable {
     private Integer termStatus;
 
     /**
-     * 延期月数
+     * 延期期数
      */
-    private Integer delayNum;
+    private Integer delayTerm;
 
     /**
      * 利率调整
      */
     private BigDecimal interestRateAdjust;
+
+    /**
+     * 展期次数
+     */
+    private Integer delayNum;
 
     /**
      * 创建还款记录初始化

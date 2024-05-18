@@ -2,15 +2,14 @@ package com.banana.info.controller;
 
 import com.banana.common.Result;
 import com.banana.info.entity.Employee;
+import com.banana.info.entity.commonEnum.SysConfig;
 import com.banana.info.service.IEmployeeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +45,7 @@ public class EmployeeController {
         wrapper.like(StringUtils.hasLength(account),Employee::getAccount,account);
         wrapper.like(StringUtils.hasLength(name),Employee::getName,name);
         wrapper.like(StringUtils.hasLength(phone ),Employee::getPhone,phone);
+        wrapper.ne(Employee::getId, SysConfig.SYSTEM.getV().intValue());
 
         Page<Employee> page = new Page<>(pageNo,pageSize);
         employeeService.page(page,wrapper);

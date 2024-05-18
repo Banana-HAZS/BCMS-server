@@ -83,6 +83,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
 
         Customer customer = customerService.getCustomerByIdCard(param.getIdCard());
 
+        // 贷款金额不可超过客户的贷款额度评估上限
         GetLoanLimitVO loanLimit = customerLoanLimitService.getLoanLimitByCustomer(customer.getId());
         if (param.getPrice().compareTo(loanLimit.getLoanLimit()) > 0) {
             throw new BusinessException(BusinessExceptionEnum.AMOUNT_EXCEEDS_LIMIT);

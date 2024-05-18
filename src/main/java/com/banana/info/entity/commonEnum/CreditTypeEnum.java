@@ -22,7 +22,7 @@ public enum CreditTypeEnum {
     private Integer down;
     private Integer up;
 
-    public CreditTypeEnum getCreditByScore(Integer score) {
+    public static CreditTypeEnum getCreditByScore(Integer score) {
         if (score >= MAX_SCORE) {
             return excellent;
         }

@@ -43,4 +43,8 @@ public class GetLoanLimitVO implements Serializable {
      */
     private Integer evaluateStatus;
 
+    /**
+     * 评估人id
+     */
+    private Integer evaluatorId;
 }
