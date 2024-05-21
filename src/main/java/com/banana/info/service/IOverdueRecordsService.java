@@ -1,6 +1,7 @@
 package com.banana.info.service;
 
 import com.banana.info.entity.OverdueRecords;
+import com.banana.info.entity.param.ConfirmRemindParam;
 import com.banana.info.entity.param.OverdueRecordsSearchParam;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -24,4 +25,6 @@ public interface IOverdueRecordsService extends IService<OverdueRecords> {
     Map<String, Object> getOverdueRecordsList(OverdueRecordsSearchParam param);
 
     OverdueRecords getOverdueRecordsByLoanRecover(Integer id);
+
+    void confirmRemind(ConfirmRemindParam param);
 }

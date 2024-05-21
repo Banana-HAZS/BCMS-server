@@ -29,9 +29,6 @@
         <if test="param.customerPhone != null and param.customerPhone != ''">
             and customer.phone like concat('%',#{param.customerPhone},'%')
         </if>
-        <if test="param.remindStatus !=null ">
-            and delay_records.remind_status = #{param.remindStatus}
-        </if>
         order by delay_records.delay_start_date desc
     </select>
 </mapper>

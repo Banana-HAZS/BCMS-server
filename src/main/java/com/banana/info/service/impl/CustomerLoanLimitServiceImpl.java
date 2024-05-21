@@ -3,11 +3,9 @@ package com.banana.info.service.impl;
 import com.banana.info.entity.CustomerLoanLimit;
 import com.banana.info.entity.Employee;
 import com.banana.info.entity.commonEnum.EvaluateStatusEnum;
-import com.banana.info.entity.commonEnum.LoanLimitEnum;
 import com.banana.info.entity.param.AddCustomerLoanLimitParam;
 import com.banana.info.entity.param.CustomerLoanLimitSearchParam;
 import com.banana.info.entity.param.EvaluateCustomerLoanLimitParam;
-import com.banana.info.entity.param.getLoanLimitParam;
 import com.banana.info.entity.vo.CustomerLoanLimitSearchVO;
 import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.mapper.CustomerLoanLimitMapper;
@@ -22,7 +20,6 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * <p>

@@ -29,6 +29,8 @@
             lr.delay_term,
             lr.delay_num,
             lr.interest_rate_adjust,
+            lr.remind_status,
+            lr.next_remind_time,
             c.phone as customerPhone
         from
             loan_recover as lr
@@ -58,6 +60,9 @@
         </if>
         <if test="param.termStatus != null">
             and lr.term_status = #{param.termStatus}
+        </if>
+        <if test="param.remindStatus !=null ">
+            and lr.remind_status = #{param.remindStatus}
         </if>
         order by lr.repay_date
     </select>

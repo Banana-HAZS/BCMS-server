@@ -4,10 +4,7 @@ import com.banana.common.BusinessException;
 import com.banana.common.BusinessExceptionEnum;
 import com.banana.info.entity.*;
 import com.banana.info.entity.commonEnum.*;
-import com.banana.info.entity.param.LoanRecoverDelayPayoffParam;
-import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
-import com.banana.info.entity.param.LoanRecoverRepayParam;
-import com.banana.info.entity.param.LoanRecoverSearchParam;
+import com.banana.info.entity.param.*;
 import com.banana.info.entity.vo.InitDelayFormVO;
 import com.banana.info.entity.vo.LoanRecoverSearchVO;
 import com.banana.info.mapper.*;
@@ -93,6 +90,21 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
     public void updateLoanRecover() {
         List<LoanRecover> loanRecovers = loanRecoverMapper.selectList(null);
 
+        // 更新提醒状态
+        List<LoanRecover> needRemindRecovers = loanRecovers.stream()
+                .filter(lr -> lr.getTermStatus().equals(TermStatusEnum.WAIT_REPAY.getV()) ||
+                        lr.getTermStatus().equals(TermStatusEnum.DELAYED.getV()))
+                .collect(Collectors.toList());
+        needRemindRecovers.forEach(nrr ->{
+            if(nrr.getNextRemindTime().equals(SysConfig.DONT_REMIND_TIME.getTime())){
+                return;
+            }
+            nrr.setRemindStatus(
+                    nrr.getNextRemindTime().isBefore(LocalDateTime.now()) ?
+                            RemindStatusEnum.REMIND_RECOVER.getV() : nrr.getRemindStatus());
+            loanRecoverMapper.updateById(nrr);
+        });
+
         // 更新已逾期记录，和贷款收回的逾期罚息
         overdueRecordsService.updateOverdueRecords();
         // 获取待还款的贷款收回
@@ -146,6 +158,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
 
         // 设置待还金额
         loanRecover.setRemainRepayPrice(loanRecover.getTermRepayPrice());
+        loanRecover.setRemindStatus(RemindStatusEnum.CURRENT_NOT.getV());
+        loanRecover.setNextRemindTime(loanRecover.getRepayDate().plusDays(-2L));
 
         loanMapper.updateById(loan);
         loanRecoverMapper.insert(loanRecover);
@@ -155,8 +169,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         long days;
         // 日利率
         BigDecimal dayInterestRate = loanRecover.getInterestRate()
-                .divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP)
-                .divide(BigDecimal.valueOf(30), RoundingMode.HALF_UP);
+                .divide(BigDecimal.valueOf(12), 16, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(30), 16, RoundingMode.HALF_UP);
         // 情况一：第一期利率计算
         if (loan.getCurrentTerm().equals(1)) {
             // 按放款日期再计算一次还款日期，每一期要大于等于15天，否则向后顺延一月
@@ -412,8 +426,6 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         delayRecords.setDelayChargeBase(param.getDelayChargeBase());
         delayRecords.setDelayCharge(param.getDelayCharge());
         delayRecords.setDelayInterestAdjust(param.getDelayInterestAdjust());
-        delayRecords.setRemindStatus(RemindStatusEnum.CURRENT_NOT.getV());
-        delayRecords.setNextRemindTime(delayRecords.getDelayEndDate().plusDays(-2L));
         delayRecordsMapper.insert(delayRecords);
 
         // 2. 更新loanRecover
@@ -435,6 +447,8 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         loanRecover.setDelayTerm(param.getDelayTerms());
         loanRecover.setInterestRateAdjust(param.getDelayInterestAdjust());
         loanRecover.setDelayNum(loanRecover.getDelayNum() + 1);
+        loanRecover.setRemindStatus(RemindStatusEnum.CURRENT_NOT.getV());
+        loanRecover.setNextRemindTime(loanRecover.getRepayDate().plusDays(-2L));
         loanRecoverMapper.updateById(loanRecover);
 
         // 3. 更新loan
@@ -452,6 +466,15 @@ public class LoanRecoverServiceImpl extends ServiceImpl<LoanRecoverMapper, LoanR
         initDelayFormVO.setDelayChargeBase(SysConfig.DELAY_CHARGE_BASE.getBv());
         initDelayFormVO.setDelayInterestAdjust(SysConfig.DELAY_INTEREST_ADJUST.getBv());
         return initDelayFormVO;
+    }
+
+    @Override
+    public void confirmRemind(ConfirmRemindParam param) {
+        LoanRecover loanRecover = loanRecoverMapper.selectById(param.getId());
+        loanRecover.setRemindStatus(RemindStatusEnum.REMINDED.getV());
+        // 除非后面再做展期否则不再提醒(逾期采用催收提醒)
+        loanRecover.setNextRemindTime(SysConfig.DONT_REMIND_TIME.getTime());
+        loanRecoverMapper.updateById(loanRecover);
     }
 
     /*

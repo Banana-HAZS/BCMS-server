@@ -33,4 +33,6 @@ public interface ILoanRecoverService extends IService<LoanRecover> {
     void delayPayoff(LoanRecoverDelayPayoffParam param);
 
     InitDelayFormVO initDelayForm();
+
+    void confirmRemind(ConfirmRemindParam param);
 }

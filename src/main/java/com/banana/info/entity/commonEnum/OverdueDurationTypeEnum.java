@@ -19,12 +19,12 @@ public enum OverdueDurationTypeEnum {
     /**
      * 较长逾期
      */
-    LONG_OVERDUE(2, 1 * 30, 6 * 30, "long_overdue"),
+    LONG_OVERDUE(2, 1 * 30, 3 * 30, "long_overdue"),
 
     /**
      * 严重逾期
      */
-    SERIOUS_OVERDUE(3, 6 * 30, Integer.MAX_VALUE, "serious_overdue");
+    SERIOUS_OVERDUE(3, 3 * 30, Integer.MAX_VALUE, "serious_overdue");
 
 
     OverdueDurationTypeEnum(Integer v) {

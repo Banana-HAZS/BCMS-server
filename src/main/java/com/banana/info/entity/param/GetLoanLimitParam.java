@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class getLoanLimitParam implements Serializable {
+public class GetLoanLimitParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

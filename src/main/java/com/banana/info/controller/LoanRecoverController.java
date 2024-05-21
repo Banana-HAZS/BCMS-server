@@ -1,10 +1,7 @@
 package com.banana.info.controller;
 
 import com.banana.common.Result;
-import com.banana.info.entity.param.LoanRecoverDelayPayoffParam;
-import com.banana.info.entity.param.LoanRecoverEarlyPayoffParam;
-import com.banana.info.entity.param.LoanRecoverRepayParam;
-import com.banana.info.entity.param.LoanRecoverSearchParam;
+import com.banana.info.entity.param.*;
 import com.banana.info.entity.vo.InitDelayFormVO;
 import com.banana.info.service.ILoanRecoverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +56,11 @@ public class LoanRecoverController {
     @GetMapping("/initDelayForm")
     public Result<InitDelayFormVO> initDelayForm() {
         return Result.success(loanRecoverService.initDelayForm());
+    }
+
+    @PostMapping("/confirmRemind")
+    public Result<?> confirmRemind(@RequestBody ConfirmRemindParam param) {
+        loanRecoverService.confirmRemind(param);
+        return Result.success("已确认提醒");
     }
 }

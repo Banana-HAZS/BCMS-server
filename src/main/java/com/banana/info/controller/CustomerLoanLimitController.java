@@ -45,7 +45,7 @@ public class CustomerLoanLimitController {
     }
 
     @PostMapping("/getLoanLimitByCustomer")
-    public Result<GetLoanLimitVO> getLoanLimitByCustomer(@RequestBody getLoanLimitParam param) {
+    public Result<GetLoanLimitVO> getLoanLimitByCustomer(@RequestBody GetLoanLimitParam param) {
         return Result.success(customerLoanLimitService.getLoanLimitByCustomer(param.getCustomerId()));
     }
 

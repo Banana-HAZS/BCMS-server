@@ -8,6 +8,7 @@ import com.banana.info.entity.commonEnum.OverdueDurationTypeEnum;
 import com.banana.info.entity.commonEnum.OverdueTypeEnum;
 import com.banana.info.entity.commonEnum.RemindStatusEnum;
 import com.banana.info.entity.commonEnum.SysConfig;
+import com.banana.info.entity.param.ConfirmRemindParam;
 import com.banana.info.entity.param.OverdueRecordsSearchParam;
 import com.banana.info.entity.param.RepayRecordsSearchParam;
 import com.banana.info.entity.vo.OverdueRecordsSearchVO;
@@ -85,8 +86,8 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
 
             // 逾期罚息计算：逾期罚息 = 逾期金额 * 利率 * 逾期罚息基数 * 逾期时间
             BigDecimal dayInterestRate = loanRecover.getInterestRate()
-                    .divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP)
-                    .divide(BigDecimal.valueOf(30), RoundingMode.HALF_UP);
+                    .divide(BigDecimal.valueOf(12), 16, RoundingMode.HALF_UP)
+                    .divide(BigDecimal.valueOf(30), 16, RoundingMode.HALF_UP);
             or.setLateCharge(or.getOverduePrice()
                     .multiply(dayInterestRate)
                     .multiply(or.getLateChargeBase())
@@ -146,6 +147,9 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
     @Override
     public Map<String, Object> getOverdueRecordsList(OverdueRecordsSearchParam param) {
 
+        // 更新记录
+        updateOverdueRecords();
+
         Page<OverdueRecordsSearchVO> page = overdueRecordsMapper
                 .getOverdueRecordsList(param, new Page<>(param.getPageNo(), param.getPageSize()));
 
@@ -159,5 +163,13 @@ public class OverdueRecordsServiceImpl extends ServiceImpl<OverdueRecordsMapper,
     public OverdueRecords getOverdueRecordsByLoanRecover(Integer loanRecoverId) {
         return overdueRecordsMapper.selectOne(new LambdaQueryWrapper<OverdueRecords>()
                 .eq(OverdueRecords::getLoanRecoverId, loanRecoverId));
+    }
+
+    @Override
+    public void confirmRemind(ConfirmRemindParam param) {
+        OverdueRecords overdueRecords = overdueRecordsMapper.selectById(param.getId());
+        overdueRecords.setRemindStatus(RemindStatusEnum.REMINDED.getV());
+        overdueRecords.setNextRemindTime(overdueRecords.getNextRemindTime().plusDays(SysConfig.REMIND_INTERVAL.getV()));
+        overdueRecordsMapper.updateById(overdueRecords);
     }
 }

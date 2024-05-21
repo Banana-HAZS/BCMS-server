@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,10 +24,12 @@ public enum SysConfig {
     DELAY_MAX_LIMIT(2L,"每次展期的最大期限是2期"),
     DELAY_CHARGE_BASE(new BigDecimal("0.005"),"展期手续费是展期金额的0.5%;"),
     DELAY_INTEREST_ADJUST(new BigDecimal("0.005"),"展期期间利率调整，在原基础上增加0.5%;"),
+    DONT_REMIND_TIME(LocalDateTime.of(1111, 11, 11, 0, 0, 0),"将不再进行提醒的下一次提醒时间置为此值"),
     ;
 
     private Long v;
     private BigDecimal bv;
+    private LocalDateTime time;
     private String name;
     private String instruction;
 
@@ -48,6 +51,11 @@ public enum SysConfig {
 
     SysConfig(BigDecimal bv, String instruction) {
         this.bv = bv;
+        this.instruction = instruction;
+    }
+
+    SysConfig(LocalDateTime time, String instruction) {
+        this.time = time;
         this.instruction = instruction;
     }
 }

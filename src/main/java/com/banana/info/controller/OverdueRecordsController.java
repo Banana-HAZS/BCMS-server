@@ -1,6 +1,7 @@
 package com.banana.info.controller;
 
 import com.banana.common.Result;
+import com.banana.info.entity.param.ConfirmRemindParam;
 import com.banana.info.entity.param.OverdueRecordsSearchParam;
 import com.banana.info.service.IOverdueRecordsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,5 +31,11 @@ public class OverdueRecordsController {
     public Result<Map<String, Object>> getOverdueRecordsList(@RequestBody OverdueRecordsSearchParam param) {
         Map<String, Object> data = overdueRecordsService.getOverdueRecordsList(param);
         return Result.success(data);
+    }
+
+    @PostMapping("/confirmRemind")
+    public Result<?> confirmRemind(@RequestBody ConfirmRemindParam param) {
+        overdueRecordsService.confirmRemind(param);
+        return Result.success("已确认提醒");
     }
 }

@@ -33,9 +33,4 @@ public class DelayRecordsSearchParam extends PageParam implements Serializable {
      * 客户联系方式
      */
     private String customerPhone;
-
-    /**
-     * 提醒状态(1暂无、2还款提醒、3已提醒)
-     */
-    private Integer remindStatus;
 }

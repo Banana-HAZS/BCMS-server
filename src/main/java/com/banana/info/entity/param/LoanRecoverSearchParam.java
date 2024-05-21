@@ -54,6 +54,11 @@ public class LoanRecoverSearchParam extends PageParam implements Serializable {
     private String customerPhone;
 
     /**
+     * 提醒状态(1暂无、2还款提醒、3已提醒)
+     */
+    private Integer remindStatus;
+
+    /**
      * 当期还款状态(1待还款、2当期已结清、3提前结清、4已延期、5已逾期)
      */
     private Integer termStatus;

@@ -4,7 +4,6 @@ import com.banana.info.entity.CustomerLoanLimit;
 import com.banana.info.entity.param.AddCustomerLoanLimitParam;
 import com.banana.info.entity.param.CustomerLoanLimitSearchParam;
 import com.banana.info.entity.param.EvaluateCustomerLoanLimitParam;
-import com.banana.info.entity.param.getLoanLimitParam;
 import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 

@@ -37,7 +37,8 @@
         from
             employee
         join role on employee.role_id = role.id
-        where 1=1
+        where
+            employee.id != 0
         <if test="param.account != null and param.account != ''">
             and employee.account like concat('%',#{param.account},'%')
         </if>

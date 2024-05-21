@@ -135,6 +135,16 @@ public class LoanRecover implements Serializable {
     private Integer delayNum;
 
     /**
+     * 提醒状态(1暂无、2催收提醒、3已提醒)
+     */
+    private Integer remindStatus;
+
+    /**
+     * 下一次提醒时间
+     */
+    private LocalDateTime nextRemindTime;
+
+    /**
      * 创建还款记录初始化
      * @return
      */

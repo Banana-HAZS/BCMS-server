@@ -149,4 +149,13 @@ public class LoanRecoverSearchVO implements Serializable {
      */
     private BigDecimal interestRateAdjust;
 
+    /**
+     * 提醒状态(1暂无、2催收提醒、3已提醒)
+     */
+    private Integer remindStatus;
+
+    /**
+     * 下一次提醒时间
+     */
+    private LocalDateTime nextRemindTime;
 }

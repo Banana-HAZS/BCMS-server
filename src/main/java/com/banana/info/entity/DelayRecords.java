@@ -88,14 +88,4 @@ public class DelayRecords implements Serializable {
      */
     private BigDecimal delayInterestAdjust;
 
-    /**
-     * 提醒状态(1暂无、2还款提醒、3已提醒)
-     */
-    private Integer remindStatus;
-
-    /**
-     * 下一次提醒时间
-     */
-    private LocalDateTime nextRemindTime;
-
 }

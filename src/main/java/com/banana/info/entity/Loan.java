@@ -1,5 +1,6 @@
 package com.banana.info.entity;
 
+import com.banana.info.entity.commonEnum.RemindStatusEnum;
 import com.banana.info.entity.commonEnum.TermStatusEnum;
 import com.banana.tool.LoanRecoverNoGenerator;
 import com.baomidou.mybatisplus.annotation.IdType;
