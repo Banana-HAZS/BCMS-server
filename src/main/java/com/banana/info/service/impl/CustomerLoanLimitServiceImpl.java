@@ -7,6 +7,7 @@ import com.banana.info.entity.param.AddCustomerLoanLimitParam;
 import com.banana.info.entity.param.CustomerLoanLimitSearchParam;
 import com.banana.info.entity.param.EvaluateCustomerLoanLimitParam;
 import com.banana.info.entity.vo.CustomerLoanLimitSearchVO;
+import com.banana.info.entity.vo.GetInfoVO;
 import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.mapper.CustomerLoanLimitMapper;
 import com.banana.info.service.ICustomerLoanLimitService;
@@ -66,7 +67,7 @@ public class CustomerLoanLimitServiceImpl extends ServiceImpl<CustomerLoanLimitM
         customerLoanLimit.setEvaluateStatus(EvaluateStatusEnum.EVALUATED.getV());
         customerLoanLimit.setEvaluateDate(LocalDateTime.now());
 
-        Employee employee = employeeService.getUserInfo(token);
+        GetInfoVO employee = employeeService.getUserInfo(token);
         customerLoanLimit.setEvaluatorId(employee.getId());
 
         customerLoanLimitMapper.updateById(customerLoanLimit);

@@ -6,6 +6,7 @@ import com.banana.common.BusinessExceptionEnum;
 import com.banana.common.Result;
 import com.banana.info.entity.Employee;
 import com.banana.info.entity.param.LoginParam;
+import com.banana.info.entity.vo.GetInfoVO;
 import com.banana.info.mapper.EmployeeMapper;
 import com.banana.info.service.IEmployeeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +40,9 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Resource
+    private RoleServiceImpl roleService;
 
     @Override
     public Result<Map<String, Object>> login(LoginParam param) {
@@ -64,12 +69,16 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     }
 
     @Override
-    public Employee getUserInfo(String token) {
+    public GetInfoVO getUserInfo(String token) {
         Object obj = redisTemplate.opsForValue().get(token);
         if(Objects.isNull(obj)){
             throw new BusinessException(BusinessExceptionEnum.LOGIN_EXPIRED);
         }
-        return JSON.parseObject(JSON.toJSONString(obj), Employee.class);
+        Employee employee = JSON.parseObject(JSON.toJSONString(obj), Employee.class);
+        GetInfoVO getInfoVO = employee.toGetInfoVO();
+        getInfoVO.setMenuList(roleService.getMenuList(employee.getRoleId()));
+
+        return getInfoVO;
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.util.Map;
  * @author zjy
  * @since 2023-12-19
  */
-public interface IRoleService extends IService<RoleVO> {
+public interface IRoleVOService extends IService<RoleVO> {
 
 
     Map<String,Object> getRolePage(RoleParam param);

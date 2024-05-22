@@ -12,6 +12,7 @@ import com.banana.info.entity.param.AuditLoanParam;
 import com.banana.info.entity.param.GrantLoanParam;
 import com.banana.info.entity.param.LoanApplySearchParam;
 import com.banana.info.entity.param.LoanSaveParam;
+import com.banana.info.entity.vo.GetInfoVO;
 import com.banana.info.entity.vo.GetLoanLimitVO;
 import com.banana.info.entity.vo.LoanApplyVO;
 import com.banana.info.mapper.CustomerMapper;
@@ -89,7 +90,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
             throw new BusinessException(BusinessExceptionEnum.AMOUNT_EXCEEDS_LIMIT);
         }
 
-        Employee employee = employeeService.getUserInfo(token);
+        GetInfoVO employee = employeeService.getUserInfo(token);
 
         Loan loan = param.toLoan();
         loan.setLoanNo(LoanNoGenerator.generateUniqueCode());
@@ -123,7 +124,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
             throw new BusinessException(BusinessExceptionEnum.AUDIT_TYPE_ERROR);
         }
 
-        Employee employee = employeeService.getUserInfo(token);
+        GetInfoVO employee = employeeService.getUserInfo(token);
 
         Loan loan = param.toLoan();
         loan.setAuditType(AuditTypeEnum.PASSED.getV());
@@ -140,7 +141,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
             return;
         }
 
-        Employee employee = employeeService.getUserInfo(token);
+        GetInfoVO employee = employeeService.getUserInfo(token);
 
         Loan loan = param.toLoan();
         loan.setAuditType(AuditTypeEnum.REJECTED.getV());
@@ -157,7 +158,7 @@ public class LoanServiceImpl extends ServiceImpl<LoanMapper, Loan> implements IL
             throw new BusinessException(BusinessExceptionEnum.GTANT_TYPE_ERROR);
         }
 
-        Employee employee = employeeService.getUserInfo(token);
+        GetInfoVO employee = employeeService.getUserInfo(token);
 
         Loan loan = param.toLoan();
         loan.setLoanStatus(LoanStatusEnum.GRANTED.getV());

@@ -3,12 +3,12 @@ package com.banana.info.controller;
 import com.banana.common.Result;
 import com.banana.info.entity.Employee;
 import com.banana.info.entity.param.RoleParam;
-import com.banana.info.entity.vo.RoleVO;
 import com.banana.info.service.IEmployeeService;
-import com.banana.info.service.IRoleService;
+import com.banana.info.service.IRoleVOService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -23,8 +23,8 @@ import java.util.Map;
 @RequestMapping("/info/role")
 public class RoleController {
 
-    @Autowired
-    private IRoleService roleService;
+    @Resource
+    private IRoleVOService roleService;
 
     @Autowired
     private IEmployeeService employeeService;

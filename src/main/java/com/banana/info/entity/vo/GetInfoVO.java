@@ -1,13 +1,13 @@
-package com.banana.info.entity;
+package com.banana.info.entity.vo;
 
-import com.banana.info.entity.vo.GetInfoVO;
+import com.banana.info.entity.Menu;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author zjy
- * @since 2024-03-29
+ * @since 2024-05-22
  */
 @Data
-public class Employee implements Serializable {
+public class GetInfoVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -129,29 +129,8 @@ public class Employee implements Serializable {
      */
     private LocalDateTime registrationDate;
 
-    public GetInfoVO toGetInfoVO(){
-        GetInfoVO getInfoVO = new GetInfoVO();
-        getInfoVO.setId(id);
-        getInfoVO.setAccount(account);
-        getInfoVO.setPassword(password);
-        getInfoVO.setName(name);
-        getInfoVO.setGender(gender);
-        getInfoVO.setFolk(folk);
-        getInfoVO.setIdCard(idCard);
-        getInfoVO.setRoleId(roleId);
-        getInfoVO.setBirthDate(birthDate);
-        getInfoVO.setMarital(marital);
-        getInfoVO.setHometown(hometown);
-        getInfoVO.setAddress(address);
-        getInfoVO.setEducational(educational);
-        getInfoVO.setHealth(health);
-        getInfoVO.setReligious(religious);
-        getInfoVO.setPolitical(political);
-        getInfoVO.setPhone(phone);
-        getInfoVO.setEmail(email);
-        getInfoVO.setDeleted(deleted);
-        getInfoVO.setPicture(picture);
-        getInfoVO.setRegistrationDate(registrationDate);
-        return getInfoVO;
-    }
+    /**
+     * 菜单列表
+     */
+    private List<MenuVO> menuList;
 }

@@ -1,16 +1,13 @@
 package com.banana.login;
 
-import com.banana.common.BusinessException;
-import com.banana.common.BusinessExceptionEnum;
 import com.banana.common.Result;
-import com.banana.info.entity.Employee;
 import com.banana.info.entity.param.LoginParam;
+import com.banana.info.entity.vo.GetInfoVO;
 import com.banana.info.service.IEmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Objects;
 
 @RestController //RestController注解会将返回结果自动转JSon
 @RequestMapping("/login")
@@ -25,7 +22,7 @@ public class LoginController {
     }
 
     @GetMapping("/info")
-    public Result<Employee> getInfo(@RequestParam("token") String token){
+    public Result<GetInfoVO> getInfo(@RequestParam("token") String token){
         return Result.success(employeeService.getUserInfo(token));
     }
 }

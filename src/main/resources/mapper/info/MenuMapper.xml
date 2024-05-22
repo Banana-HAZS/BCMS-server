@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.banana.info.mapper.MenuMapper">
+
+    <select id="getFirstMenu" resultType="com.banana.info.entity.vo.MenuVO">
+        select
+            menu.*
+        from
+            menu
+        where
+            menu.is_leaf = 'N'
+        and menu.id in
+        <foreach collection="authority" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getSecondMenu" resultType="com.banana.info.entity.vo.MenuVO">
+        select
+            menu.*
+        from
+            menu
+        where
+            menu.parent_id = #{id}
+        and menu.id in
+        <foreach collection="authority" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

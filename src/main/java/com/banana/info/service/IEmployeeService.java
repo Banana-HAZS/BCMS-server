@@ -3,6 +3,7 @@ package com.banana.info.service;
 import com.banana.common.Result;
 import com.banana.info.entity.Employee;
 import com.banana.info.entity.param.LoginParam;
+import com.banana.info.entity.vo.GetInfoVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,7 @@ public interface IEmployeeService extends IService<Employee> {
 
     Result<Map<String,Object>> login(LoginParam param);
 
-    Employee getUserInfo(String token);
+    GetInfoVO getUserInfo(String token);
 
     void logout(String token);
 

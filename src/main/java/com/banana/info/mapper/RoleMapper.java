@@ -1,20 +1,16 @@
 package com.banana.info.mapper;
 
-import com.banana.info.entity.param.RoleParam;
-import com.banana.info.entity.vo.RoleVO;
+import com.banana.info.entity.Role;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
- *  Mapper 接口
+ * 角色权限配置表 Mapper 接口
  * </p>
  *
- * @author zjy
- * @since 2023-12-19
+ * @author ZhaiJianYu
+ * @since 2024-05-22
  */
-public interface RoleMapper extends BaseMapper<RoleVO> {
+public interface RoleMapper extends BaseMapper<Role> {
 
-    Page<RoleVO> getRolePage(@Param("param") RoleParam param, Page<RoleVO> page);
 }

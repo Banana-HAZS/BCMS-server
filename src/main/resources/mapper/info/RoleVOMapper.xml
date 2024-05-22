@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.banana.info.mapper.RoleVOMapper">
+
+    <select id="getRolePage" resultType="com.banana.info.entity.vo.RoleVO">
+        select
+            employee.id,
+            employee.account,
+            employee.name,
+            employee.role_id as roleId,
+            role.name as roleName,
+            DATEDIFF(CURDATE(),employee.registration_date) as workTime,
+            (
+                select count(*)
+                from (
+                    select apply_executor_id as employee_id
+                    from loan
+                    where loan_status != 5
+                    union all
+                    select auditor_id as employee_id
+                    from loan
+                    where loan_status != 5
+                    union all
+                    select grant_executor_id as employee_id
+                    from loan
+                    where loan_status != 5
+                    union all
+                    select evaluator_id as employee_id
+                    from customer_loan_limit
+                    where customer_loan_limit.deleted != 1
+                    ) as subQuery
+                where subQuery.employee_id = employee.id
+                group by employee_id
+                ) as num,
+            employee.phone,
+            employee.registration_date
+        from
+            employee
+        join role on employee.role_id = role.id
+        where
+            employee.id != 0
+        <if test="param.account != null and param.account != ''">
+            and employee.account like concat('%',#{param.account},'%')
+        </if>
+        <if test="param.name != null and param.name != ''">
+            and employee.name like concat('%',#{param.name},'%')
+        </if>
+        <if test="param.phone != null and param.phone != ''">
+            and employee.phone like concat('%',#{param.phone},'%')
+        </if>
+    </select>
+</mapper>
